@@ -9,7 +9,7 @@ class Autoloader
     static public function register()
     {
 
-        spl_autoload_register(array(new self, 'autoload'));
+        spl_autoload_register('self::autoload');
 
     }
 
