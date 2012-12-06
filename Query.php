@@ -75,7 +75,7 @@ class Query implements \Iterator, \Countable
                      . ';host=' . $db[$connection]['hostname'],
                      $db[$connection]['username'], $db[$connection]['password']);
 
-            if (simpleframework_ENV === "prod") {
+            if (SIMPLEFRAMEWORK_ENV === "prod") {
                 self::$_connections[$connection]->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_SILENT);
             } else {
                 self::$_connections[$connection]->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);

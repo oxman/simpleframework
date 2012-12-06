@@ -17,11 +17,11 @@ class Kernel
     protected function _loadEnv($env='prod')
     {
 
-        define('simpleframework_ENV', $env);
+        define('SIMPLEFRAMEWORK_ENV', $env);
 
         $config = array();
 
-        foreach(glob(ROOT . '/app/config/' . simpleframework_ENV . '/*.php') as $file) {
+        foreach(glob(ROOT . '/app/config/' . SIMPLEFRAMEWORK_ENV . '/*.php') as $file) {
             require_once $file;
         }
 
@@ -304,7 +304,7 @@ class Kernel
 
         $loader = new LoaderTemplate(ROOT . '/app/view');
 
-        if (defined('TEMPLATE_CACHE') === false && in_array(simpleframework_ENV, array('dev', 'local')) === true
+        if (defined('TEMPLATE_CACHE') === false && in_array(SIMPLEFRAMEWORK_ENV, array('dev', 'local')) === true
             || defined('TEMPLATE_CACHE') === true && TEMPLATE_CACHE === false) {
             $autoReload = true;
         } else {
@@ -316,7 +316,7 @@ class Kernel
           'auto_reload' => $autoReload
         );
 
-        if (in_array(simpleframework_ENV, array('dev', 'local')) === true
+        if (in_array(SIMPLEFRAMEWORK_ENV, array('dev', 'local')) === true
             || defined('TEMPLATE_DEBUG') === true && TEMPLATE_DEBUG === true) {
             $options['debug'] = true;
         }
