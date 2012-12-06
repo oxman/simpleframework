@@ -73,7 +73,7 @@ class Query implements \Countable, Observer\Subject
     }
 
 
-    public function __construct($connection='default', $metadata=null, $config=null)
+    public function __construct($connection='default', Adapter\Metadata $metadata=null, array $config=null)
     {
 
         $this->_connection = $connection;

@@ -2,7 +2,9 @@
 
 namespace simpleframework\Norm;
 
-class Metadata
+require_once 'Adapter/Metadata.php';
+
+class Metadata implements Adapter\Metadata
 {
 
 
