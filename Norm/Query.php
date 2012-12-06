@@ -79,7 +79,7 @@ class Query implements \Countable, Observer\Subject
         $this->_connection = $connection;
 
         if ($metadata === null) {
-            $this->_metadata = ModelMeta2::getInstance();
+            $this->_metadata = Metadata::getInstance();
         } else {
             $this->_metadata = $metadata;
         }
