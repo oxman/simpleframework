@@ -2,6 +2,7 @@
 
 namespace simpleframework\Norm;
 
+require_once ROOT . '/vendor/simpleframework/Norm/Adapter/Driver/Mysqli/Mysqli.php';
 require_once ROOT . '/vendor/simpleframework/Norm/Metadata.php';
 require_once ROOT . '/vendor/simpleframework/Norm/Observer/Subject.php';
 
@@ -34,6 +35,7 @@ class Query implements \Countable, Observer\Subject
     protected $_numberRows = null;
     protected $_targets    = array();
     protected $_metadata   = null;
+    protected $_database   = null;
     protected $_stmtData   = null;
     protected $_stmtResult = null;
     protected $_observers  = array();
@@ -73,32 +75,58 @@ class Query implements \Countable, Observer\Subject
     }
 
 
-    public function __construct($connection='default', Adapter\Metadata $metadata=null, array $config=null)
+    public function __construct($connection='default', array $config=null)
     {
 
         $this->_connection = $connection;
 
-        if ($metadata === null) {
-            $this->_metadata = Metadata::getInstance();
-        } else {
-            $this->_metadata = $metadata;
-        }
-
         if ($config === null) {
-            $config = Kernel::getConfig('db');
-        }
-
-        if (isset(self::$_connections[$this->_connection]) === false) {
-            $mysqli = new \mysqli($config[$this->_connection]['hostname'],
-                                  $config[$this->_connection]['username'],
-                                  $config[$this->_connection]['password'],
-                                  $config[$this->_connection]['database']);
-
-            $mysqli->query("SET NAMES 'utf8'");
-            self::$_connections[$this->_connection] = $mysqli;
+            $this->_config = \simpleframework\Kernel::getConfig('db');
+        } else {
+            $this->_config = $config;
         }
 
         return $this;
+
+    }
+
+
+    protected function _connect()
+    {
+
+        if ($this->_database === null) {
+            $this->_database = new Adapter\Driver\Mysqli\Mysqli();
+        }
+
+        if ($this->_metadata === null) {
+            $this->_metadata = Metadata::getInstance();
+        }
+
+        if (isset(self::$_connections[$this->_connection]) === false) {
+            $database = $this->_database->connect($this->_config[$this->_connection]['hostname'],
+                            $this->_config[$this->_connection]['username'],
+                            $this->_config[$this->_connection]['password'],
+                            $this->_config[$this->_connection]['database']);
+
+            $database->query("SET NAMES 'utf8'");
+            self::$_connections[$this->_connection] = $database;
+        }
+
+    }
+
+
+    public function setMetadata(Adapter\Metadata $metadata)
+    {
+
+        $this->_metadata = $metadata;
+
+    }
+
+
+    public function setDatabase(Adapter\Database $database)
+    {
+
+        $this->_database = $database;
 
     }
 
@@ -389,26 +417,6 @@ class Query implements \Countable, Observer\Subject
                     $sql .= ' LIMIT ' . $this->_query['limit'][1] . ' OFFSET ' . $this->_query['limit'][0];
                 }
 
-
-                /*
-                $sqlColumn = array();
-
-                foreach($this->_targets as $target) {
-                    list($table, $alias) = self::parseTableName($target);
-                    $columns = $this->_meta->getColumns($table);
-
-                    foreach(array_keys($columns) as $column) {
-                        $sqlColumn[] = $alias . '.' . $column . ' as ' . $alias . '_' . $column;
-                    }
-                }
-
-                foreach($this->_query['select'] as &$select) {
-                    if (strpos($select, '*') !== false && count($sqlColumn) > 0) {
-                        $select = str_replace('*', implode(', ', $sqlColumn), $select);
-                    }
-                }
-                */
-
                 if (count($this->_query['select']) === 0) {
                     $sql = ' * ' . $sql;
                 } else {
@@ -442,8 +450,13 @@ class Query implements \Countable, Observer\Subject
     {
 
         $result = $this->execute();
-        $data = $this->_processRow($result);
         $this->_stmtData->close();
+
+        if ($result === null) {
+            return null;
+        }
+
+        $data = $this->_processRow($result);
 
         $object = $this->_metadata->mapToObjects($data, $this->_targets);
 
@@ -452,11 +465,11 @@ class Query implements \Countable, Observer\Subject
     }
 
 
-    protected function _processRow(\mysqli_result $result)
+    protected function _processRow(Adapter\DatabaseResult $result)
     {
 
-        $data   = $result->fetch_array(MYSQLI_NUM);
-        $fields = $result->fetch_fields();
+        $data   = $result->fetchArray();
+        $fields = $result->fetchFields();
 
         foreach($fields as $i => &$field) {
             $field->value = $data[$i];
@@ -468,6 +481,37 @@ class Query implements \Countable, Observer\Subject
 
 
     public function execute()
+    {
+
+        if ($this->_stmtData === null) {
+            $this->_execute();
+        }
+
+        switch ($this->_query['type']) {
+            case self::TYPE_UPDATE:
+            case self::TYPE_DELETE:
+                $result = $this->_stmtData->getAffectedRows();
+                break;
+            case self::TYPE_INSERT:
+                $result = self::$_connections[$this->_connection]->getInsertId();
+                break;
+            case self::TYPE_SELECT;
+                if ($this->_stmtResult === null) {
+                    $result = $this->_stmtData->getResult();
+                    $this->_stmtResult = $result;
+                } else {
+                    $result = $this->_stmtResult;
+                }
+                $this->_count();
+                break;
+        }
+
+        return $result;
+
+    }
+
+
+    public function _execute()
     {
 
         $sql = $this->getSql();
@@ -502,11 +546,12 @@ class Query implements \Countable, Observer\Subject
             array_unshift($values, $types);
         }
 
+        $this->_connect();
         $connection = self::$_connections[$this->_connection];
         $this->_stmtData = $connection->prepare($sql);
 
         if ($types !== "") {
-            call_user_func_array(array($this->_stmtData, 'bind_param'), $values);
+            $this->_stmtData->bindParams($values);
         }
 
         $start = microtime(true);
@@ -520,29 +565,15 @@ class Query implements \Countable, Observer\Subject
             'sql'      => $sql,
             'params'   => $this->getValues(),
             'error'    => array(
-                'state'   => $connection->sqlstate,
-                'code'    => $connection->errno,
-                'message' => $connection->error
+                'state'   => $connection->getSqlstate(),
+                'code'    => $connection->getErrorNo(),
+                'message' => $connection->getErrorMessage()
             )
         ));
 
         if ($this->_stmtData == false) {
-            throw new \Exception($connection->error, $connection->errno);
+            throw new \Exception($connection->getErrorMessage(), $connection->getErrorNo());
         }
-
-        switch ($this->_query['type']) {
-            case self::TYPE_UPDATE:
-            case self::TYPE_DELETE:
-                $result = $this->_stmtData->affected_rows;
-            case self::TYPE_INSERT:
-                $result = self::$_connections[$this->_connection]->insert_id;
-            case self::TYPE_SELECT;
-                $result = $this->_stmtData->get_result();
-        }
-
-        $this->_numberRows = $this->count();
-
-        return $result;
 
     }
 
@@ -642,12 +673,27 @@ class Query implements \Countable, Observer\Subject
     public function count()
     {
 
+        // No result ? The query should be executed to use FOUND_ROWS()
+        if ($this->_stmtResult === null) {
+            $this->execute();
+        }
+
+        return $this->_count();
+
+    }
+
+
+    public function _count()
+    {
+
         if ($this->_numberRows !== null) {
             return $this->_numberRows;
         }
 
+        $this->_connect();
         $sql = 'SELECT FOUND_ROWS()';
-        $stmt = self::$_connections[$this->_connection]->prepare($sql);
+        $connection = self::$_connections[$this->_connection];
+        $stmt = $connection->prepare($sql);
 
         $start = microtime(true);
         $stmt->execute();
@@ -657,16 +703,23 @@ class Query implements \Countable, Observer\Subject
             'sql'      => $sql,
             'params'   => $this->getValues(),
             'error'    => array(
-                'state'   => $this->_stmtData->sqlstate,
-                'code'    => $this->_stmtData->errno,
-                'message' => $this->_stmtData->error
+                'state'   => $connection->getSqlstate(),
+                'code'    => $connection->getErrorNo(),
+                'message' => $connection->getErrorMessage()
             )
         ));
 
-        $data = $this->_processRow($stmt->get_result());
+        $result = $stmt->getResult();
         $stmt->close();
 
-        return (int) $data[0]->value;
+        if ($result === null) {
+            return 0;
+        }
+
+        $data = $this->_processRow($result);
+        $this->_numberRows = (int) $data[0]->value;
+
+        return $this->_numberRows;
 
     }
 
