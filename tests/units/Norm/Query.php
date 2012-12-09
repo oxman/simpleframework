@@ -7,11 +7,11 @@ define('ROOT', realpath(getcwd() . DIRECTORY_SEPARATOR . ".."));
 require_once ROOT . '/vendor/mageekguy.atoum.phar';
 require_once ROOT . '/vendor/simpleframework/Norm/Observer/Observer.php';
 require_once ROOT . '/vendor/simpleframework/Norm/Adapter/Driver/Mysqli/Mysqli.php';
-require_once ROOT . '/vendor/simpleframework/Norm/Metadata.php';
-require_once ROOT . '/vendor/simpleframework/Norm/Model.php';
 require_once ROOT . '/vendor/simpleframework/Norm/Query.php';
-require_once ROOT . '/vendor/simpleframework/tests/model/Match.php';
-require_once ROOT . '/vendor/simpleframework/tests/model/Team.php';
+require_once ROOT . '/vendor/simpleframework/Norm/Model.php';
+require_once ROOT . '/vendor/simpleframework/Norm/Metadata.php';
+require_once ROOT . '/vendor/simpleframework/tests/Autoloader.php';
+
 
 use mageekguy\atoum;
 
@@ -19,11 +19,19 @@ class Query extends atoum\test
 {
 
 
+    public function beforeTestMethod($method)
+    {
+
+        \simpleframework\tests\Autoloader::register();
+
+    }
+
+
     public function testFrom()
     {
 
         $this
-            ->if($q = new \simpleframework\Norm\Query('default', array()))
+            ->if($q = new \simpleframework\Norm\Query())
             ->then
                 ->object($q)
                 ->isInstanceOf('\simpleframework\Norm\Query')
@@ -47,7 +55,7 @@ class Query extends atoum\test
     {
 
         $this
-            ->if($q = new \simpleframework\Norm\Query('default', array()))
+            ->if($q = new \simpleframework\Norm\Query())
             ->then
                 ->object($q)
                 ->isInstanceOf('\simpleframework\Norm\Query')
@@ -71,7 +79,7 @@ class Query extends atoum\test
     {
 
         $this
-            ->if($q = new \simpleframework\Norm\Query('default', array()))
+            ->if($q = new \simpleframework\Norm\Query())
             ->then
                 ->object($q)
                 ->isInstanceOf('\simpleframework\Norm\Query')
@@ -95,7 +103,7 @@ class Query extends atoum\test
     {
 
         $this
-            ->if($q = new \simpleframework\Norm\Query('default', array()))
+            ->if($q = new \simpleframework\Norm\Query())
             ->then
                 ->object($q)
                 ->isInstanceOf('\simpleframework\Norm\Query')
@@ -119,7 +127,7 @@ class Query extends atoum\test
     {
 
         $this
-            ->if($q = new \simpleframework\Norm\Query('default', array()))
+            ->if($q = new \simpleframework\Norm\Query())
             ->then
                 ->object($q)
                 ->isInstanceOf('\simpleframework\Norm\Query')
@@ -130,12 +138,12 @@ class Query extends atoum\test
             ->if($selects = $q->getSelect())
             ->then
                 ->array($selects)
-                    ->isIdenticalTo(array('zim.a, boum as truc, vlan'))
+                ->isIdenticalTo(array('zim.a, boum as truc, vlan'))
             ->if($q = $q->select("boum", false))
             ->if($selects = $q->getSelect())
             ->then
                 ->array($selects)
-                    ->isIdenticalTo(array('boum'));
+                ->isIdenticalTo(array('boum'));
 
     }
 
@@ -149,9 +157,9 @@ class Query extends atoum\test
                 ->array($result)
                 ->hasSize(2)
                 ->string($result[0])
-                    ->isIdenticalTo('T_BOUH_BOU')
+                ->isIdenticalTo('T_BOUH_BOU')
                 ->string($result[1])
-                    ->isIdenticalTo('T_BOUH_BOU');
+                ->isIdenticalTo('T_BOUH_BOU');
 
         $this
             ->if($result = \simpleframework\Norm\Query::parseTableName('T_BOUH_BOU as Bou'))
@@ -159,9 +167,9 @@ class Query extends atoum\test
                 ->array($result)
                 ->hasSize(2)
                 ->string($result[0])
-                    ->isIdenticalTo('T_BOUH_BOU')
+                ->isIdenticalTo('T_BOUH_BOU')
                 ->string($result[1])
-                    ->isIdenticalTo('Bou');
+                ->isIdenticalTo('Bou');
 
         $this
             ->if($result = \simpleframework\Norm\Query::parseTableName('T_BOUH_BOU Bou'))
@@ -169,9 +177,9 @@ class Query extends atoum\test
                 ->array($result)
                 ->hasSize(2)
                 ->string($result[0])
-                    ->isIdenticalTo('T_BOUH_BOU')
+                ->isIdenticalTo('T_BOUH_BOU')
                 ->string($result[1])
-                    ->isIdenticalTo('Bou');
+                ->isIdenticalTo('Bou');
 
         $this
             ->if($result = \simpleframework\Norm\Query::parseTableName('T_BOUH_BOU AS Bou'))
@@ -179,9 +187,9 @@ class Query extends atoum\test
                 ->array($result)
                 ->hasSize(2)
                 ->string($result[0])
-                    ->isIdenticalTo('T_BOUH_BOU')
+                ->isIdenticalTo('T_BOUH_BOU')
                 ->string($result[1])
-                    ->isIdenticalTo('Bou');
+                ->isIdenticalTo('Bou');
 
     }
 
@@ -190,7 +198,7 @@ class Query extends atoum\test
     {
 
         $this
-            ->if($q = new \simpleframework\Norm\Query('default', array()))
+            ->if($q = new \simpleframework\Norm\Query())
             ->then
                 ->object($q)
                 ->isInstanceOf('\simpleframework\Norm\Query')
@@ -201,7 +209,7 @@ class Query extends atoum\test
             ->if($sql = $q->getSql())
             ->then
                 ->string($sql)
-                    ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT WHERE (:id)');
+                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT WHERE (:id)');
 
     }
 
@@ -210,7 +218,7 @@ class Query extends atoum\test
     {
 
         $this
-            ->if($q = new \simpleframework\Norm\Query('default', array()))
+            ->if($q = new \simpleframework\Norm\Query())
             ->then
                 ->object($q)
                 ->isInstanceOf('\simpleframework\Norm\Query')
@@ -221,7 +229,7 @@ class Query extends atoum\test
             ->if($sql = $q->getSql())
             ->then
                 ->string($sql)
-                    ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT WHERE (:id)');
+                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT WHERE (:id)');
 
     }
 
@@ -230,7 +238,7 @@ class Query extends atoum\test
     {
 
         $this
-            ->if($q = new \simpleframework\Norm\Query('default', array()))
+            ->if($q = new \simpleframework\Norm\Query())
             ->then
                 ->object($q)
                 ->isInstanceOf('\simpleframework\Norm\Query')
@@ -241,7 +249,7 @@ class Query extends atoum\test
             ->if($sql = $q->where(':truc', 'choum', false)->getSql())
             ->then
                 ->string($sql)
-                    ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT WHERE (:truc)');
+                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT WHERE (:truc)');
 
     }
 
@@ -250,7 +258,7 @@ class Query extends atoum\test
     {
 
         $this
-            ->if($q = new \simpleframework\Norm\Query('default', array()))
+            ->if($q = new \simpleframework\Norm\Query())
             ->then
                 ->object($q)
                 ->isInstanceOf('\simpleframework\Norm\Query')
@@ -271,7 +279,7 @@ class Query extends atoum\test
     {
 
         $this
-            ->if($q = new \simpleframework\Norm\Query('default', array()))
+            ->if($q = new \simpleframework\Norm\Query())
             ->then
                 ->object($q)
                 ->isInstanceOf('\simpleframework\Norm\Query')
@@ -279,12 +287,12 @@ class Query extends atoum\test
             ->if($sql = $q->getSql())
             ->then
                 ->string($sql)
-                    ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT GROUP BY zoom')
+                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT GROUP BY zoom')
             ->if($q = $q->group('ziom', false))
             ->if($sql = $q->getSql())
             ->then
                 ->string($sql)
-                    ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT GROUP BY ziom');
+                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT GROUP BY ziom');
 
     }
 
@@ -293,7 +301,7 @@ class Query extends atoum\test
     {
 
         $this
-            ->if($q = new \simpleframework\Norm\Query('default', array()))
+            ->if($q = new \simpleframework\Norm\Query())
             ->then
                 ->object($q)
                 ->isInstanceOf('\simpleframework\Norm\Query')
@@ -301,12 +309,12 @@ class Query extends atoum\test
             ->if($sql = $q->getSql())
             ->then
                 ->string($sql)
-                    ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT HAVING (zoom)')
+                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT HAVING (zoom)')
             ->if($q = $q->having('ziom', false))
             ->if($sql = $q->getSql())
             ->then
                 ->string($sql)
-                    ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT HAVING (ziom)');
+                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT HAVING (ziom)');
 
     }
 
@@ -315,7 +323,7 @@ class Query extends atoum\test
     {
 
         $this
-            ->if($q = new \simpleframework\Norm\Query('default', array()))
+            ->if($q = new \simpleframework\Norm\Query())
             ->then
                 ->object($q)
                 ->isInstanceOf('\simpleframework\Norm\Query')
@@ -323,7 +331,7 @@ class Query extends atoum\test
             ->if($sql = $q->getSql())
             ->then
                 ->string($sql)
-                    ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT LIMIT 3 OFFSET 8');
+                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT LIMIT 3 OFFSET 8');
 
     }
 
@@ -332,7 +340,7 @@ class Query extends atoum\test
     {
 
         $this
-            ->if($q = new \simpleframework\Norm\Query('default', array()))
+            ->if($q = new \simpleframework\Norm\Query())
             ->then
                 ->object($q)
                 ->isInstanceOf('\simpleframework\Norm\Query')
@@ -340,12 +348,12 @@ class Query extends atoum\test
             ->if($sql = $q->getSql())
             ->then
                 ->string($sql)
-                    ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT ORDER BY zoom')
+                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT ORDER BY zoom')
             ->if($q = $q->order('ziom', false))
             ->if($sql = $q->getSql())
             ->then
                 ->string($sql)
-                    ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT ORDER BY ziom');
+                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT ORDER BY ziom');
 
     }
 
@@ -354,7 +362,7 @@ class Query extends atoum\test
     {
 
         $this
-            ->if($q = new \simpleframework\Norm\Query('default', array()))
+            ->if($q = new \simpleframework\Norm\Query())
             ->then
                 ->object($q)
                 ->isInstanceOf('\simpleframework\Norm\Query')
@@ -365,7 +373,7 @@ class Query extends atoum\test
             ->if($sql = $q->getSql())
             ->then
                 ->string($sql)
-                    ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT m INNER JOIN Pouf ON (Pouf.a = m.id)');
+                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT m INNER JOIN Pouf ON (Pouf.a = m.id)');
 
     }
 
@@ -374,7 +382,7 @@ class Query extends atoum\test
     {
 
         $this
-            ->if($q = new \simpleframework\Norm\Query('default', array()))
+            ->if($q = new \simpleframework\Norm\Query())
             ->then
                 ->object($q)
                 ->isInstanceOf('\simpleframework\Norm\Query')
@@ -385,7 +393,7 @@ class Query extends atoum\test
             ->if($sql = $q->getSql())
             ->then
                 ->string($sql)
-                    ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT m LEFT JOIN Pouf ON (Pouf.a = m.id)');
+                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT m LEFT JOIN Pouf ON (Pouf.a = m.id)');
 
     }
 
@@ -394,7 +402,7 @@ class Query extends atoum\test
     {
 
         $this
-            ->if($q = new \simpleframework\Norm\Query('default', array()))
+            ->if($q = new \simpleframework\Norm\Query())
             ->then
                 ->object($q)
                 ->isInstanceOf('\simpleframework\Norm\Query')
@@ -405,7 +413,7 @@ class Query extends atoum\test
             ->if($sql = $q->getSql())
             ->then
                 ->string($sql)
-                    ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT m RIGHT JOIN Pouf ON (Pouf.a = m.id)');
+                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT m RIGHT JOIN Pouf ON (Pouf.a = m.id)');
 
     }
 
@@ -414,7 +422,7 @@ class Query extends atoum\test
     {
 
         $this
-            ->if($q = new \simpleframework\Norm\Query('default', array()))
+            ->if($q = new \simpleframework\Norm\Query())
             ->then
                 ->object($q)
                 ->isInstanceOf('\simpleframework\Norm\Query')
@@ -425,7 +433,7 @@ class Query extends atoum\test
             ->if($sql = $q->getSql(true))
             ->then
                 ->string($sql)
-                    ->isIdenticalTo('SELECT bouh FROM T_MATCH_MAT m');
+                ->isIdenticalTo('SELECT bouh FROM T_MATCH_MAT m');
 
 
     }
@@ -435,7 +443,7 @@ class Query extends atoum\test
     {
 
         $this
-            ->if($q = new \simpleframework\Norm\Query('default', array()))
+            ->if($q = new \simpleframework\Norm\Query())
             ->then
                 ->object($q)
                 ->isInstanceOf('\simpleframework\Norm\Query')
@@ -446,7 +454,7 @@ class Query extends atoum\test
             ->if($values = $q->getValues())
             ->then
                 ->array($values)
-                    ->isIdenticalTo(array(':id' => 'bouh'));
+                ->isIdenticalTo(array(':id' => 'bouh'));
 
     }
 
@@ -515,14 +523,15 @@ class Query extends atoum\test
         $teamRef->setAlias('OM');
 
         $this
-            ->if($q = new \simpleframework\Norm\Query('default', array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
+            ->if($q = new \simpleframework\Norm\Query())
+            ->if($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
             ->if($q->setDatabase($databaseMock))
             ->if($q->setMetadata($metadataMock))
             ->if($q->from('T_TEAM_TEA'))
             ->if($team = $q->first())
             ->then
                 ->object($team)
-                    ->isCloneOf($teamRef);
+                ->isCloneOf($teamRef);
 
     }
 
@@ -557,14 +566,15 @@ class Query extends atoum\test
         $metadataMock = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
 
         $this
-            ->if($q = new \simpleframework\Norm\Query('default', array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
+            ->if($q = new \simpleframework\Norm\Query())
+            ->if($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
             ->if($q->setDatabase($databaseMock))
             ->if($q->setMetadata($metadataMock))
             ->if($q->from('T_TEAM_TEA'))
             ->if($team = $q->first())
             ->then
                 ->variable($team)
-                    ->isNull();
+                ->isNull();
 
     }
 
@@ -616,14 +626,15 @@ class Query extends atoum\test
         $metadataMock = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
 
         $this
-            ->if($q = new \simpleframework\Norm\Query('default', array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
+            ->if($q = new \simpleframework\Norm\Query())
+            ->if($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
             ->if($q->setDatabase($databaseMock))
             ->if($q->setMetadata($metadataMock))
             ->if($q->from('T_TEAM_TEA'))
             ->if($count = $q->count())
             ->then
                 ->variable($count)
-                    ->isIdenticalTo(32);
+                ->isIdenticalTo(32);
 
 
     }
