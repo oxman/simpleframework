@@ -75,17 +75,10 @@ class Query implements \Countable, Observer\Subject
     }
 
 
-    public function __construct($connection='default', array $config=null)
+    public function __construct($connection='default')
     {
 
         $this->_connection = $connection;
-
-        if ($config === null) {
-            $this->_config = \simpleframework\Kernel::getConfig('db');
-        } else {
-            $this->_config = $config;
-        }
-
         return $this;
 
     }
@@ -93,6 +86,10 @@ class Query implements \Countable, Observer\Subject
 
     protected function _connect()
     {
+
+        if ($this->_config === null) {
+            $this->_config = \simpleframework\Kernel::getConfig('db');
+        }
 
         if ($this->_database === null) {
             $this->_database = new Adapter\Driver\Mysqli\Mysqli();
@@ -111,6 +108,14 @@ class Query implements \Countable, Observer\Subject
             $database->query("SET NAMES 'utf8'");
             self::$_connections[$this->_connection] = $database;
         }
+
+    }
+
+
+    public function setConfig(array $config)
+    {
+
+        $this->_config = $config;
 
     }
 
