@@ -244,7 +244,7 @@ class Metadata implements Adapter\Metadata
 
         $class = self::getClass($table);
 
-        if ($class === false) {
+        if ($class === null) {
             return null;
         }
 
@@ -255,7 +255,7 @@ class Metadata implements Adapter\Metadata
         $object = new $class;
 
         foreach($columns as $column) {
-            if (is_object($column) === false) { var_dump($column); }
+
             if ($alias !== $column->table) {
                 continue;
             }
