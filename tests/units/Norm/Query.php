@@ -515,7 +515,7 @@ class Query extends atoum\test
 
         };
 
-        $metadataMock = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
+        $metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
 
         $teamRef = new \Team();
         $teamRef->setId(3);
@@ -526,7 +526,7 @@ class Query extends atoum\test
             ->if($q = new \simpleframework\Norm\Query())
             ->if($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
             ->if($q->setDatabase($databaseMock))
-            ->if($q->setMetadata($metadataMock))
+            ->if($q->setMetadata($metadata))
             ->if($q->from('T_TEAM_TEA'))
             ->if($team = $q->first())
             ->then
@@ -563,13 +563,13 @@ class Query extends atoum\test
             return null;
         };
 
-        $metadataMock = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
+        $metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
 
         $this
             ->if($q = new \simpleframework\Norm\Query())
             ->if($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
             ->if($q->setDatabase($databaseMock))
-            ->if($q->setMetadata($metadataMock))
+            ->if($q->setMetadata($metadata))
             ->if($q->from('T_TEAM_TEA'))
             ->if($team = $q->first())
             ->then
@@ -623,13 +623,13 @@ class Query extends atoum\test
 
         };
 
-        $metadataMock = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
+        $metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
 
         $this
             ->if($q = new \simpleframework\Norm\Query())
             ->if($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
             ->if($q->setDatabase($databaseMock))
-            ->if($q->setMetadata($metadataMock))
+            ->if($q->setMetadata($metadata))
             ->if($q->from('T_TEAM_TEA'))
             ->if($count = $q->count())
             ->then
