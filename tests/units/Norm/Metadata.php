@@ -292,4 +292,107 @@ class Metadata extends atoum\test
     }
 
 
+    public function testMapToObjects()
+    {
+
+        $stdClassId = new \stdClass();
+        $stdClassId->name    = 'tea_id';
+        $stdClassId->orgname = 'tea_id';
+        $stdClassId->table   = 'T_TEAM_TEA';
+
+        $stdClassName = new \stdClass();
+        $stdClassName->name    = 'tea_name';
+        $stdClassName->orgname = 'tea_name';
+        $stdClassName->table   = 'T_TEAM_TEA';
+
+        $stdClassAlias = new \stdClass();
+        $stdClassAlias->name    = 'tea_alias';
+        $stdClassAlias->orgname = 'tea_alias';
+        $stdClassAlias->table   = 'T_TEAM_TEA';
+
+        $stdClassId->value    = 3;
+        $stdClassName->value  = 'Olympique de Marseille';
+        $stdClassAlias->value = 'OM';
+
+        $columns = array($stdClassId, $stdClassName, $stdClassAlias);
+        $targets = array('T_TEAM_TEA');
+
+        $this
+            ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
+            ->if($team = new \Team())
+            ->if($team->setId(3))
+            ->if($team->setName('Olympique de Marseille'))
+            ->if($team->setAlias('OM'))
+            ->if($object = $metadata->mapToObjects($columns, $targets))
+            ->then
+                ->object($object)
+                ->isCloneOf($team);
+
+    }
+
+
+    public function testMapToObjectsNoTable()
+    {
+
+        $this
+            ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
+            ->if($object = $metadata->mapToObjects(array(), array()))
+            ->then
+                ->variable($object)
+                ->isNull();
+
+    }
+
+
+    public function testMapToObjectsWithSubObject()
+    {
+
+        $stdClassMatchId = new \stdClass();
+        $stdClassMatchId->name    = 'mat_id';
+        $stdClassMatchId->orgname = 'mat_id';
+        $stdClassMatchId->table   = 'T_MATCH_MAT';
+
+        $stdClassMatchDate = new \stdClass();
+        $stdClassMatchDate->name    = 'mat_date';
+        $stdClassMatchDate->orgname = 'mat_date';
+        $stdClassMatchDate->table   = 'T_MATCH_MAT';
+
+        $stdClassTeamId = new \stdClass();
+        $stdClassTeamId->name     = 'tea_id';
+        $stdClassTeamId->orgname  = 'tea_id';
+        $stdClassTeamId->table    = 'teamHome';
+        $stdClassTeamId->orgtable = 'T_TEAM_TEA';
+
+        $stdClassTeamName = new \stdClass();
+        $stdClassTeamName->name     = 'tea_name';
+        $stdClassTeamName->orgname  = 'tea_name';
+        $stdClassTeamName->table    = 'teamHome';
+        $stdClassTeamName->orgtable = 'T_TEAM_TEA';
+
+        $stdClassMatchId->value   = 7;
+        $stdClassMatchDate->value = '2012-12-11';
+
+        $stdClassTeamId->value    = 3;
+        $stdClassTeamName->value  = 'Olympique de Marseille';
+
+        $columns = array($stdClassMatchId, $stdClassMatchDate, $stdClassTeamId, $stdClassTeamName);
+        $targets = array('T_MATCH_MAT', 'T_TEAM_TEA teamHome');
+
+        $this
+            ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
+            ->if($match = new \Match())
+            ->if($match->setId(7))
+            ->if($match->setDate('2012-12-11'))
+            ->if($team = new \Team())
+            ->if($team->setId(3))
+            ->if($team->setName('Olympique de Marseille'))
+            ->if($match->teamHome = $team)
+            ->if($object = $metadata->mapToObjects($columns, $targets))
+            ->then
+                ->object($object)
+                ->isCloneOf($match);
+
+    }
+
+
 }
