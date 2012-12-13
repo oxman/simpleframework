@@ -395,4 +395,52 @@ class Metadata extends atoum\test
     }
 
 
+    public function testMapToObject()
+    {
+
+        $stdClass = new \stdClass();
+        $stdClass->name     = 'now';
+        $stdClass->orgname  = 'now';
+        $stdClass->table    = 'teamHome';
+        $stdClass->orgtable = 'T_TEAM_TEA';
+        $stdClass->value    = 3;
+
+        $this
+            ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
+            ->if($object = $metadata->mapToObject(array($stdClass), 'T_TEAM_TEA', 'teamHome'))
+            ->if($teamRef = new \Team())
+            ->if($teamRef->now = 3)
+            ->then
+                ->object($object)
+                ->isCloneOf($teamRef);
+
+    }
+
+
+    public function testMapToObjectColumnsNull()
+    {
+
+        $this
+            ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
+            ->if($object = $metadata->mapToObject(null, 'T_TEAM_TEA', 'teamHome'))
+            ->then
+                ->variable($object)
+                ->isNull();
+
+    }
+
+
+    public function testGetInstance()
+    {
+
+        $this
+            ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
+            ->if($metadata2 = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
+            ->then
+                ->object($metadata)
+                ->isIdenticalTo($metadata2);
+
+    }
+
+
 }
