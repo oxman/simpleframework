@@ -451,10 +451,11 @@ class Metadata extends atoum\test
                      * orm:a(true)
                      * orm:b(false)
                      * orm:c(3)
+                     * orm:d(1,2,3)
                      * orm:name(tea_name)
                      */";
 
-        $paramsRef = array('type' => 'string', 'name' => 'tea_name', 'a' => true, 'b' => false, 'c' => 3);
+        $paramsRef = array('type' => 'string', 'name' => 'tea_name', 'a' => true, 'b' => false, 'c' => 3, 'd' => array('1', '2', '3'));
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
