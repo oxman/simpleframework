@@ -248,7 +248,7 @@ class Metadata implements Adapter\Metadata
             return null;
         }
 
-        if ($columns === false) {
+        if ($columns === null) {
             return null;
         }
 
@@ -263,7 +263,7 @@ class Metadata implements Adapter\Metadata
             $columnInfo = $this->getColumnByKey($table, $column->orgname);
 
             // not a column of the model
-            if ($columnInfo === false) {
+            if ($columnInfo === null) {
                 $method = 'set' . ucfirst($column->orgname);
             } else {
                 $method = 'set' . ucfirst(substr($columnInfo['name'], 1));
