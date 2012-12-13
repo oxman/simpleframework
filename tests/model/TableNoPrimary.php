@@ -8,10 +8,13 @@ class TableNoPrimary extends \simpleframework\Norm\Model
 
 
     /**
-     * orm:type(int)
+     * No Type
      * orm:name(tnp_id)
      */
     protected $_id;
+
+
+    protected $_noMeta;
 
 
 }
