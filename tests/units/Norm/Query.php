@@ -476,25 +476,11 @@ class Query extends atoum\test
         $databaseStatementMock = new \DatabaseStatementMock\DatabaseStatement();
         $databaseResultMock = new \DatabaseResultMock\DatabaseResult();
 
-        $databaseMock->getMockController()->connect = function() use($databaseMock) {
-            return $databaseMock;
-        };
-
-        $databaseMock->getMockController()->prepare = function() use($databaseStatementMock) {
-            return $databaseStatementMock;
-        };
-
-        $databaseStatementMock->getMockController()->execute = function() use($databaseStatementMock) {
-            return $databaseStatementMock;
-        };
-
-        $databaseStatementMock->getMockController()->getResult = function() use($databaseResultMock) {
-            return $databaseResultMock;
-        };
-
-        $databaseResultMock->getMockController()->fetchArray = function() {
-            return array(3, 'Olympique de Marseille', 'OM');
-        };
+        $databaseMock->getMockController()->connect = $databaseMock;
+        $databaseMock->getMockController()->prepare = $databaseStatementMock;
+        $databaseStatementMock->getMockController()->execute = $databaseStatementMock;
+        $databaseStatementMock->getMockController()->getResult = $databaseResultMock;
+        $databaseResultMock->getMockController()->fetchArray = array(3, 'Olympique de Marseille', 'OM');
 
         $databaseResultMock->getMockController()->fetchFields = function() {
             $fields = array();
@@ -553,21 +539,10 @@ class Query extends atoum\test
         $databaseStatementMock = new \DatabaseStatementMock\DatabaseStatement();
         $databaseResultMock = new \DatabaseResultMock\DatabaseResult();
 
-        $databaseMock->getMockController()->connect = function() use($databaseMock) {
-            return $databaseMock;
-        };
-
-        $databaseMock->getMockController()->prepare = function() use($databaseStatementMock) {
-            return $databaseStatementMock;
-        };
-
-        $databaseStatementMock->getMockController()->execute = function() use($databaseStatementMock) {
-            return $databaseStatementMock;
-        };
-
-        $databaseStatementMock->getMockController()->getResult = function() use($databaseResultMock) {
-            return null;
-        };
+        $databaseMock->getMockController()->connect = $databaseMock;
+        $databaseMock->getMockController()->prepare = $databaseStatementMock;
+        $databaseStatementMock->getMockController()->execute = $databaseStatementMock;
+        $databaseStatementMock->getMockController()->getResult = null;
 
         $metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
 
@@ -596,25 +571,11 @@ class Query extends atoum\test
         $databaseStatementMock = new \DatabaseStatementMock\DatabaseStatement();
         $databaseResultMock = new \DatabaseResultMock\DatabaseResult();
 
-        $databaseMock->getMockController()->connect = function() use($databaseMock) {
-            return $databaseMock;
-        };
-
-        $databaseMock->getMockController()->prepare = function() use($databaseStatementMock) {
-            return $databaseStatementMock;
-        };
-
-        $databaseStatementMock->getMockController()->execute = function() use($databaseStatementMock) {
-            return $databaseStatementMock;
-        };
-
-        $databaseStatementMock->getMockController()->getResult = function() use($databaseResultMock) {
-            return $databaseResultMock;
-        };
-
-        $databaseResultMock->getMockController()->fetchArray = function() {
-            return array(32);
-        };
+        $databaseMock->getMockController()->connect = $databaseMock;
+        $databaseMock->getMockController()->prepare = $databaseStatementMock;
+        $databaseStatementMock->getMockController()->execute = $databaseStatementMock;
+        $databaseStatementMock->getMockController()->getResult = $databaseResultMock;
+        $databaseResultMock->getMockController()->fetchArray = array(32);
 
         $databaseResultMock->getMockController()->fetchFields = function() {
             $fields = array();
