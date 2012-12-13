@@ -183,7 +183,8 @@ class Metadata extends atoum\test
 
         $columnRef = array(
             'type' => 'string',
-            'name' => '_name'
+            'name' => '_name',
+            'key'  => 'tea_name'
         );
 
         $this

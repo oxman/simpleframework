@@ -177,8 +177,9 @@ class Metadata implements Adapter\Metadata
             return null;
         }
 
-        foreach($this->_metadata[$table]['columns'] as $column) {
-            if ($column['name'] === $propertyName) {
+        foreach($this->_metadata[$table]['columns'] as $key => $column) {
+            if ($column['name'] === $propertyName || $column['name'] === '_' . $propertyName) {
+                $column['key'] = $key;
                 return $column;
             }
         }
