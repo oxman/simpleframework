@@ -586,16 +586,19 @@ class Query implements \Countable, Observer\Subject
     public static function parseTableName($table)
     {
 
-        $targetExploded = explode(' ', $table, 2);
-        $table = $targetExploded[0];
+        preg_match('/([^ ]+)(?: as)?(?: ([^ ]+))?/i', $table, $parsed);
 
-        if (isset($targetExploded[1]) === true) {
-            $alias = $targetExploded[1];
-        } else {
-            $alias = $table;
+        if (count($parsed) === 0) {
+            return null;
         }
 
-        $alias = preg_replace("/^AS /i", "", $alias);
+        $table = $parsed[1];
+
+        if (isset($parsed[2]) === false) {
+            $alias = $table;
+        } else {
+            $alias = $parsed[2];
+        }
 
         return array($table, $alias);
 
