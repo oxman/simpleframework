@@ -152,6 +152,12 @@ class Query extends atoum\test
     {
 
         $this
+            ->if($result = \simpleframework\Norm\Query::parseTableName(''))
+            ->then
+                ->variable($result)
+                ->isNull();
+
+        $this
             ->if($result = \simpleframework\Norm\Query::parseTableName('T_BOUH_BOU'))
             ->then
                 ->array($result)
