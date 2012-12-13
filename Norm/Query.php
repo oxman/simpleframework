@@ -54,7 +54,7 @@ class Query implements \Countable, Observer\Subject
     public function attach(Observer\Observer $observer)
     {
 
-      $this->_observers[] = $observer;
+        $this->_observers[] = $observer;
 
     }
 
@@ -62,14 +62,8 @@ class Query implements \Countable, Observer\Subject
     public function detach(Observer\Observer $observer)
     {
 
-      $key = array_search($observer_in, $this->_observers);
-      var_dump($key);
-
-      foreach($this->observers as $okey => $oval) {
-        if ($oval == $observer) {
-          unset($this->_observers[$okey]);
-        }
-      }
+        $key = array_search($observer, $this->_observers);
+        unset($this->_observers[$key]);
 
     }
 
