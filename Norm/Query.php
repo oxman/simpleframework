@@ -16,12 +16,9 @@ class Query implements \Countable, Observer\Subject
     const TYPE_UPDATE = 'update';
 
     protected static $_connections = array();
-    protected $_query = array(
+    public $_query = array(
         'select' => array(),
-        'where'  => array(
-            'statement' => array(),
-            'value'     => array()
-        ),
+        'where'  => array(),
         'order'  => array(),
         'group'  => array(),
         'having' => array(),
@@ -29,9 +26,12 @@ class Query implements \Countable, Observer\Subject
             'inner' => array(),
             'left'  => array(),
             'right' => array(),
-        )
+        ),
+        'value' => array(),
+        'set'   => array()
     );
 
+    protected $_config     = null;
     protected $_numberRows = null;
     protected $_targets    = array();
     protected $_metadata   = null;
@@ -216,12 +216,22 @@ class Query implements \Countable, Observer\Subject
     }
 
 
+    public function set(array $data)
+    {
+
+        $this->_query['set']   = array_merge($this->_query['set'], array_keys($data));
+        $this->_query['value'] = array_merge($this->_query['value'], array_values($data));
+        return $this;
+
+    }
+
+
     public function where($statement, $value=array(), $append=true)
     {
 
         if ($append === false) {
-            $this->_query['where']['statement'] = array();
-            $this->_query['where']['value'] = array();
+            $this->_query['where'] = array();
+            $this->_query['value'] = array();
         }
 
         // Single value, found the placeholder and transform the value to placeholder => value
@@ -235,8 +245,8 @@ class Query implements \Countable, Observer\Subject
             $value = array($result[1] => $value);
         }
 
-        $this->_query['where']['statement'][] = $statement;
-        $this->_query['where']['value']       = array_merge($this->_query['where']['value'], $value);
+        $this->_query['where'][] = $statement;
+        $this->_query['value']   = array_merge($this->_query['value'], $value);
         return $this;
 
     }
@@ -326,50 +336,48 @@ class Query implements \Countable, Observer\Subject
             case self::TYPE_DELETE:
                 $sql = 'DELETE FROM ' . $this->_query['target'];
 
-                if (count($this->_query['where']['statement']) > 0) {
-                    $sql .= ' WHERE (' . implode(') AND (', $this->_query['where']['statement']) . ')';
+                if (count($this->_query['where']) > 0) {
+                    $sql .= ' WHERE (' . implode(') AND (', $this->_query['where']) . ')';
                 }
 
             break;
 
             case self::TYPE_INSERT:
-                $sql .= 'INSERT INTO ' . $this->_from;
+                $sql = 'INSERT INTO ' . $this->_query['target'];
 
-                if (count($this->_data) === 0) {
-                    return false;
+                if (count($this->_query['set']) === 0) {
+                    return null;
                 }
 
-                $columns = array();
-                $bind    = array();
+                $names = array();
 
-                $sql .= ' (' . implode(', ', array_keys($this->_data)) . ') VALUES (:' . implode(', :', array_keys($this->_data)) . ')';
+                foreach(array_keys($this->_query['set']) as $key) {
+                    $columnInfo = $this->_metadata->getColumnByName($this->_query['target'], substr($key, 1));
+                    $names[] = $columnInfo['key'];
+                }
+
+                $sql .= ' (' . implode(', ', $names) . ') VALUES (' . implode(', ', array_keys($this->_query['set'])) . ')';
 
             break;
 
             case self::TYPE_UPDATE:
-                $sql .= 'UPDATE ' . $this->_from;
+                $sql = 'UPDATE ' . $this->_query['target'];
 
-                if (count($this->_data) === 0) {
-                    return false;
+                if (count($this->_query['set']) === 0) {
+                    return null;
                 }
 
                 $columns = array();
-                $bind    = array();
 
-                foreach($this->_data as $key => $value) {
-                    if (is_object($value) === true && get_class($value) === "simpleframework\Raw") {
-                        $columns[] = $key . ' = ' . $value;
-                        unset($this->_data[$key]);
-                    } else {
-                        $columns[]        = $key . ' = :' . $key;
-                        $bind[':' . $key] = $value;
-                    }
+                foreach($this->_query['set'] as $key => $value) {
+                    $columnInfo = $this->_metadata->getColumnByName($this->_query['target'], substr($key, 1));
+                    $columns[] = $columnInfo['key'] . ' = ' . $key;
                 }
 
                 $sql .= ' SET ' . implode(', ', $columns);
 
-                if (count($this->_where) > 0) {
-                    $sql .= ' WHERE (' . implode(') AND (', $this->_where) . ')';
+                if (count($this->_query['where']) > 0) {
+                    $sql .= ' WHERE (' . implode(') AND (', $this->_query['where']) . ')';
                 }
 
             break;
@@ -398,8 +406,8 @@ class Query implements \Countable, Observer\Subject
                     $this->_targets[] = $table;
                 }
 
-                if (count($this->_query['where']['statement']) > 0) {
-                    $sql .= ' WHERE (' . implode(') AND (', $this->_query['where']['statement']) . ')';
+                if (count($this->_query['where']) > 0) {
+                    $sql .= ' WHERE (' . implode(') AND (', $this->_query['where']) . ')';
                 }
 
                 if (count($this->_query['group']) > 0) {
@@ -442,7 +450,7 @@ class Query implements \Countable, Observer\Subject
     public function getValues()
     {
 
-        return $this->_query['where']['value'];
+        return $this->_query['value'];
 
     }
 
@@ -517,6 +525,10 @@ class Query implements \Countable, Observer\Subject
 
         $sql = $this->getSql();
 
+        if ($sql == null) {
+            throw new \Exception('Query is empty');
+        }
+
         preg_match_all('/:([a-zA-Z_-]+)/', $sql, $names);
         $sql = preg_replace('/:([a-zA-Z_-]+)/', '?', $sql);
         $names = $names[1];
@@ -526,9 +538,8 @@ class Query implements \Countable, Observer\Subject
         $data   = $this->getValues();
 
         foreach($names as $name) {
-            $values[] = &$data[$name];
 
-            switch(gettype($data[$name])) {
+            switch(gettype($data[':' . $name])) {
                 case "integer":
                     $types .= "i";
                 break;
@@ -540,6 +551,9 @@ class Query implements \Countable, Observer\Subject
                 default:
                     $types .= "s";
             }
+
+            $values[] = $data[':' . $name];
+
         }
 
 
