@@ -443,4 +443,38 @@ class Metadata extends atoum\test
     }
 
 
+    public function testParseComment()
+    {
+
+        $comment = "/**
+                     * orm:type(string)
+                     * orm:a(true)
+                     * orm:b(false)
+                     * orm:c(3)
+                     * orm:name(tea_name)
+                     */";
+
+        $paramsRef = array('type' => 'string', 'name' => 'tea_name', 'a' => true, 'b' => false, 'c' => 3);
+
+        $this
+            ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
+            ->if($params = $metadata->parseComment($comment))
+            ->if(ksort($params))
+            ->if(ksort($paramsRef))
+            ->then
+                ->array($params)
+                ->isIdenticalTo($paramsRef);
+
+        $comment = "/** Nothing */";
+
+        $this
+            ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
+            ->if($params = $metadata->parseComment($comment))
+            ->then
+                ->variable($params)
+                ->isNull();
+
+    }
+
+
 }
