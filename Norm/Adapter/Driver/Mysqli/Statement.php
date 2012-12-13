@@ -16,7 +16,6 @@ class Statement implements \simpleframework\Norm\Adapter\DatabaseStatement
     public function __construct(\mysqli_stmt $statement)
     {
 
-        $statement->rand = rand(0, 100);
         $this->_statement = $statement;
 
     }
