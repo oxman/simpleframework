@@ -642,7 +642,6 @@ class Query extends atoum\test
                 ->variable($count)
                 ->isIdenticalTo(32);
 
-
     }
 
 
@@ -685,6 +684,166 @@ class Query extends atoum\test
                 ->call('update')
                 ->withArguments('Bouh')
                 ->once();
+
+    }
+
+
+    public function testExecuteInsert()
+    {
+
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\Database', '\DatabaseMock');
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\DatabaseStatement', '\DatabaseStatementMock');
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\DatabaseResult', '\DatabaseResultMock');
+
+        $databaseMock = new \DatabaseMock\Database();
+        $databaseStatementMock = new \DatabaseStatementMock\DatabaseStatement();
+        $databaseResultMock = new \DatabaseResultMock\DatabaseResult();
+
+        $databaseMock->getMockController()->connect = $databaseMock;
+        $databaseMock->getMockController()->getInsertId = 32;
+        $databaseMock->getMockController()->prepare = $databaseStatementMock;
+        $databaseStatementMock->getMockController()->execute = $databaseStatementMock;
+        $databaseStatementMock->getMockController()->getResult = $databaseResultMock;
+
+        $metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
+
+        $this
+            ->if($q = new \simpleframework\Norm\Query())
+            ->if($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
+            ->if($q->setDatabase($databaseMock))
+            ->if($q->setMetadata($metadata))
+            ->if($q->insert('T_TEAM_TEA'))
+            ->then
+                ->exception(function() use ($q) {
+                    $q->execute();
+                })
+                ->hasMessage('Query is empty')
+            ->if($q->set(array(':id' => 3)))
+            ->if($result = $q->execute())
+            ->then
+                ->variable($result)
+                ->isIdenticalTo(32);
+
+    }
+
+
+    public function testExecuteUpdate()
+    {
+
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\Database', '\DatabaseMock');
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\DatabaseStatement', '\DatabaseStatementMock');
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\DatabaseResult', '\DatabaseResultMock');
+
+        $databaseMock = new \DatabaseMock\Database();
+        $databaseStatementMock = new \DatabaseStatementMock\DatabaseStatement();
+        $databaseResultMock = new \DatabaseResultMock\DatabaseResult();
+
+        $databaseMock->getMockController()->connect = $databaseMock;
+        $databaseMock->getMockController()->prepare = $databaseStatementMock;
+        $databaseStatementMock->getMockController()->execute = $databaseStatementMock;
+        $databaseStatementMock->getMockController()->getResult = $databaseResultMock;
+        $databaseStatementMock->getMockController()->getAffectedRows = 5;
+
+        $metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
+
+        $this
+            ->if($q = new \simpleframework\Norm\Query())
+            ->if($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
+            ->if($q->setDatabase($databaseMock))
+            ->if($q->setMetadata($metadata))
+            ->if($q->update('T_TEAM_TEA'))
+            ->then
+                ->exception(function() use ($q) {
+                    $q->execute();
+                })
+                ->hasMessage('Query is empty')
+            ->if($q->set(array(':id' => 3)))
+            ->if($result = $q->execute())
+            ->then
+                ->variable($result)
+                ->isIdenticalTo(5);
+
+    }
+
+
+    public function testExecuteSelect()
+    {
+
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\Database', '\DatabaseMock');
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\DatabaseStatement', '\DatabaseStatementMock');
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\DatabaseResult', '\DatabaseResultMock');
+
+        $databaseMock = new \DatabaseMock\Database();
+        $databaseStatementMock = new \DatabaseStatementMock\DatabaseStatement();
+        $databaseResultMock = new \DatabaseResultMock\DatabaseResult();
+
+        $databaseMock->getMockController()->connect = $databaseMock;
+        $databaseMock->getMockController()->prepare = $databaseStatementMock;
+        $databaseStatementMock->getMockController()->execute = $databaseStatementMock;
+        $databaseStatementMock->getMockController()->getResult = $databaseResultMock;
+        $databaseResultMock->getMockController()->fetchArray = array(3);
+
+        $databaseResultMock->getMockController()->fetchFields = function() {
+            $fields = array();
+
+            $stdClass = new \stdClass();
+            $stdClass->name    = 'count';
+            $stdClass->orgname = 'count';
+            $stdClass->table   = 'T_TEAM_TEA';
+            $fields[] = $stdClass;
+
+            return $fields;
+
+        };
+
+        $metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
+
+        $this
+            ->if($q = new \simpleframework\Norm\Query())
+            ->if($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
+            ->if($q->setDatabase($databaseMock))
+            ->if($q->setMetadata($metadata))
+            ->if($q->from('T_TEAM_TEA'))
+            ->if($q->where('id = :id AND name = :name AND note = :note', array(':id' => 3, ':name' => 'Bouh', ':note' => 3.7)))
+            ->if($q->execute())
+            ->if($q->execute())
+            ->if($nb = count($q))
+            ->then
+                ->variable($nb)
+                ->isIdenticalTo(3);
+
+    }
+
+
+    public function testExecuteWrongQuery()
+    {
+
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\Database', '\DatabaseMock');
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\DatabaseStatement', '\DatabaseStatementMock');
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\DatabaseResult', '\DatabaseResultMock');
+
+        $databaseMock = new \DatabaseMock\Database();
+        $databaseStatementMock = new \DatabaseStatementMock\DatabaseStatement();
+        $databaseResultMock = new \DatabaseResultMock\DatabaseResult();
+
+        $databaseMock->getMockController()->connect = $databaseMock;
+        $databaseMock->getMockController()->getErrorNo = 37;
+        $databaseMock->getMockController()->getErrorMessage = 'Bouh query broken';
+        $databaseMock->getMockController()->prepare = false;
+
+        $metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
+
+        $this
+            ->if($q = new \simpleframework\Norm\Query())
+            ->if($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
+            ->if($q->setDatabase($databaseMock))
+            ->if($q->setMetadata($metadata))
+            ->if($q->from('T_TEAM_TEA'))
+            ->exception(function() use ($q) {
+                    $q->execute();
+                })
+                ->hasCode(37)
+                ->hasMessage('Bouh query broken');
 
     }
 
