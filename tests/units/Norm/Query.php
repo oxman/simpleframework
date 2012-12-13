@@ -713,6 +713,7 @@ class Query extends atoum\test
             ->if($q->setDatabase($databaseMock))
             ->if($q->setMetadata($metadata))
             ->if($q->update('T_TEAM_TEA'))
+            ->if($q->where('tea_id = :id', 3))
             ->then
                 ->exception(function() use ($q) {
                     $q->execute();
@@ -805,6 +806,40 @@ class Query extends atoum\test
                 })
                 ->hasCode(37)
                 ->hasMessage('Bouh query broken');
+
+    }
+
+
+    public function testExecuteDelete()
+    {
+
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\Database', '\DatabaseMock');
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\DatabaseStatement', '\DatabaseStatementMock');
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\DatabaseResult', '\DatabaseResultMock');
+
+        $databaseMock = new \DatabaseMock\Database();
+        $databaseStatementMock = new \DatabaseStatementMock\DatabaseStatement();
+        $databaseResultMock = new \DatabaseResultMock\DatabaseResult();
+
+        $databaseMock->getMockController()->connect = $databaseMock;
+        $databaseMock->getMockController()->prepare = $databaseStatementMock;
+        $databaseStatementMock->getMockController()->execute = $databaseStatementMock;
+        $databaseStatementMock->getMockController()->getResult = $databaseResultMock;
+        $databaseStatementMock->getMockController()->getAffectedRows = 5;
+
+        $metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
+
+        $this
+            ->if($q = new \simpleframework\Norm\Query())
+            ->if($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
+            ->if($q->setDatabase($databaseMock))
+            ->if($q->setMetadata($metadata))
+            ->if($q->delete('T_TEAM_TEA'))
+            ->if($q->where('tea_id = :id', 3))
+            ->if($result = $q->execute())
+            ->then
+                ->variable($result)
+                ->isIdenticalTo(5);
 
     }
 
