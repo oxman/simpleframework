@@ -33,7 +33,13 @@ class Mysqli implements \simpleframework\Norm\Adapter\Database
     public function prepare($sql)
     {
 
-        $statement = new Statement($this->_connection->prepare($sql));
+        $mysqliStatement = $this->_connection->prepare($sql);
+
+        if ($mysqliStatement === false) {
+            return false;
+        }
+
+        $statement = new Statement($mysqliStatement);
         return $statement;
 
     }
