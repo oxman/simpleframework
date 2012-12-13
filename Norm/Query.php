@@ -43,12 +43,21 @@ class Query implements \Countable, Observer\Subject
 
     /** Observer **/
 
+    public function getObservers()
+    {
+
+        return $this->_observers;
+
+    }
+
+
     public function attach(Observer\Observer $observer)
     {
 
       $this->_observers[] = $observer;
 
     }
+
 
     public function detach(Observer\Observer $observer)
     {
