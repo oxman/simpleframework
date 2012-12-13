@@ -43,7 +43,7 @@ class Metadata implements Adapter\Metadata
 
             $reflectionClass = new \ReflectionClass($class);
 
-            $classCommentInfos = $this->_parseComment($reflectionClass->getDocComment());
+            $classCommentInfos = $this->parseComment($reflectionClass->getDocComment());
 
             if (isset($classCommentInfos['name']) === false) {
                 continue;
@@ -56,7 +56,7 @@ class Metadata implements Adapter\Metadata
             foreach($reflectionClass->getProperties(\ReflectionProperty::IS_PROTECTED) as $property) {
 
                 $reflectionProperty = new \ReflectionProperty($model, $property->name);
-                $commentInfos = $this->_parseComment($reflectionProperty->getDocComment());
+                $commentInfos = $this->parseComment($reflectionProperty->getDocComment());
 
                 if ($commentInfos === null) {
                     continue;
@@ -82,7 +82,7 @@ class Metadata implements Adapter\Metadata
     }
 
 
-    protected function _parseComment($comment)
+    public function parseComment($comment)
     {
 
         if (preg_match_all('/\* orm:(.+)\((.+)\)/', $comment, $matches) > 0) {
