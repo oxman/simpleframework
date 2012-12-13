@@ -213,13 +213,6 @@ class Query implements \Countable, Observer\Subject
     }
 
 
-    public function whereSql(Query $q)
-    {
-
-
-    }
-
-
     public function where($statement, $value=array(), $append=true)
     {
 
