@@ -646,4 +646,47 @@ class Query extends atoum\test
     }
 
 
+    public function testAttachDetach()
+    {
+
+        $this->mockGenerator->generate('\simpleframework\Norm\Observer\Observer', '\ObserverMock');
+        $observerMock = new \ObserverMock\Observer();
+        $observerMock->getMockController()->update = array();
+
+
+        $this
+            ->if($q = new \simpleframework\Norm\Query())
+            ->if($q->attach($observerMock))
+            ->if($observers = $q->getObservers())
+            ->then
+                ->array($observers)
+                ->isIdenticalTo(array($observerMock))
+            ->if($q->detach($observerMock))
+            ->if($observers = $q->getObservers())
+            ->then
+                ->array($observers)
+                ->isIdenticalTo(array());
+
+    }
+
+
+    public function testNotify()
+    {
+
+        $this->mockGenerator->generate('\simpleframework\Norm\Observer\Observer', '\ObserverMock');
+        $observerMock = new \ObserverMock\Observer();
+
+        $this
+            ->if($q = new \simpleframework\Norm\Query())
+            ->if($q->attach($observerMock))
+            ->if($q->notify('Bouh'))
+            ->then
+                ->mock($observerMock)
+                ->call('update')
+                ->withArguments('Bouh')
+                ->once();
+
+    }
+
+
 }
