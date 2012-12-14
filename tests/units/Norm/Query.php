@@ -140,7 +140,7 @@ class Query extends atoum\test
                 ->array($selects)
                 ->isIdenticalTo(array('zim.a, boum as truc, vlan'))
             ->if($q = $q->select("boum", false))
-            ->if($selects = $q->getSelect())
+            ->and($selects = $q->getSelect())
             ->then
                 ->array($selects)
                 ->isIdenticalTo(array('boum'));
@@ -290,12 +290,12 @@ class Query extends atoum\test
                 ->object($q)
                 ->isInstanceOf('\simpleframework\Norm\Query')
             ->if($q = $q->select('bouh')->from('T_MATCH_MAT')->group('zoom'))
-            ->if($sql = $q->getSql())
+            ->and($sql = $q->getSql())
             ->then
                 ->string($sql)
                 ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT GROUP BY zoom')
             ->if($q = $q->group('ziom', false))
-            ->if($sql = $q->getSql())
+            ->and($sql = $q->getSql())
             ->then
                 ->string($sql)
                 ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT GROUP BY ziom');
@@ -312,12 +312,12 @@ class Query extends atoum\test
                 ->object($q)
                 ->isInstanceOf('\simpleframework\Norm\Query')
             ->if($q = $q->select('bouh')->from('T_MATCH_MAT')->having('zoom'))
-            ->if($sql = $q->getSql())
+            ->and($sql = $q->getSql())
             ->then
                 ->string($sql)
                 ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT HAVING (zoom)')
             ->if($q = $q->having('ziom', false))
-            ->if($sql = $q->getSql())
+            ->and($sql = $q->getSql())
             ->then
                 ->string($sql)
                 ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT HAVING (ziom)');
@@ -334,7 +334,7 @@ class Query extends atoum\test
                 ->object($q)
                 ->isInstanceOf('\simpleframework\Norm\Query')
             ->if($q = $q->select('bouh')->from('T_MATCH_MAT')->limit(8, 3))
-            ->if($sql = $q->getSql())
+            ->and($sql = $q->getSql())
             ->then
                 ->string($sql)
                 ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT LIMIT 3 OFFSET 8');
@@ -351,12 +351,12 @@ class Query extends atoum\test
                 ->object($q)
                 ->isInstanceOf('\simpleframework\Norm\Query')
             ->if($q = $q->select('bouh')->from('T_MATCH_MAT')->order('zoom'))
-            ->if($sql = $q->getSql())
+            ->and($sql = $q->getSql())
             ->then
                 ->string($sql)
                 ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT ORDER BY zoom')
             ->if($q = $q->order('ziom', false))
-            ->if($sql = $q->getSql())
+            ->and($sql = $q->getSql())
             ->then
                 ->string($sql)
                 ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM T_MATCH_MAT ORDER BY ziom');
@@ -516,11 +516,11 @@ class Query extends atoum\test
 
         $this
             ->if($q = new \simpleframework\Norm\Query())
-            ->if($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
-            ->if($q->setDatabase($databaseMock))
-            ->if($q->setMetadata($metadata))
-            ->if($q->from('T_TEAM_TEA'))
-            ->if($team = $q->first())
+            ->and($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
+            ->and($q->setDatabase($databaseMock))
+            ->and($q->setMetadata($metadata))
+            ->and($q->from('T_TEAM_TEA'))
+            ->and($team = $q->first())
             ->then
                 ->object($team)
                 ->isCloneOf($teamRef);
@@ -548,11 +548,11 @@ class Query extends atoum\test
 
         $this
             ->if($q = new \simpleframework\Norm\Query())
-            ->if($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
-            ->if($q->setDatabase($databaseMock))
-            ->if($q->setMetadata($metadata))
-            ->if($q->from('T_TEAM_TEA'))
-            ->if($team = $q->first())
+            ->and($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
+            ->and($q->setDatabase($databaseMock))
+            ->and($q->setMetadata($metadata))
+            ->and($q->from('T_TEAM_TEA'))
+            ->and($team = $q->first())
             ->then
                 ->variable($team)
                 ->isNull();
@@ -594,11 +594,11 @@ class Query extends atoum\test
 
         $this
             ->if($q = new \simpleframework\Norm\Query())
-            ->if($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
-            ->if($q->setDatabase($databaseMock))
-            ->if($q->setMetadata($metadata))
-            ->if($q->from('T_TEAM_TEA'))
-            ->if($count = $q->count())
+            ->and($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
+            ->and($q->setDatabase($databaseMock))
+            ->and($q->setMetadata($metadata))
+            ->and($q->from('T_TEAM_TEA'))
+            ->and($count = $q->count())
             ->then
                 ->variable($count)
                 ->isIdenticalTo(32);
@@ -616,13 +616,13 @@ class Query extends atoum\test
 
         $this
             ->if($q = new \simpleframework\Norm\Query())
-            ->if($q->attach($observerMock))
-            ->if($observers = $q->getObservers())
+            ->and($q->attach($observerMock))
+            ->and($observers = $q->getObservers())
             ->then
                 ->array($observers)
                 ->isIdenticalTo(array($observerMock))
             ->if($q->detach($observerMock))
-            ->if($observers = $q->getObservers())
+            ->and($observers = $q->getObservers())
             ->then
                 ->array($observers)
                 ->isIdenticalTo(array());
@@ -638,8 +638,8 @@ class Query extends atoum\test
 
         $this
             ->if($q = new \simpleframework\Norm\Query())
-            ->if($q->attach($observerMock))
-            ->if($q->notify('Bouh'))
+            ->and($q->attach($observerMock))
+            ->and($q->notify('Bouh'))
             ->then
                 ->mock($observerMock)
                 ->call('update')
@@ -670,17 +670,17 @@ class Query extends atoum\test
 
         $this
             ->if($q = new \simpleframework\Norm\Query())
-            ->if($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
-            ->if($q->setDatabase($databaseMock))
-            ->if($q->setMetadata($metadata))
-            ->if($q->insert('T_TEAM_TEA'))
+            ->and($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
+            ->and($q->setDatabase($databaseMock))
+            ->and($q->setMetadata($metadata))
+            ->and($q->insert('T_TEAM_TEA'))
             ->then
                 ->exception(function() use ($q) {
                     $q->execute();
                 })
                 ->hasMessage('Query is empty')
             ->if($q->set(array(':id' => 3)))
-            ->if($result = $q->execute())
+            ->and($result = $q->execute())
             ->then
                 ->variable($result)
                 ->isIdenticalTo(32);
@@ -709,18 +709,18 @@ class Query extends atoum\test
 
         $this
             ->if($q = new \simpleframework\Norm\Query())
-            ->if($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
-            ->if($q->setDatabase($databaseMock))
-            ->if($q->setMetadata($metadata))
-            ->if($q->update('T_TEAM_TEA'))
-            ->if($q->where('tea_id = :id', 3))
+            ->and($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
+            ->and($q->setDatabase($databaseMock))
+            ->and($q->setMetadata($metadata))
+            ->and($q->update('T_TEAM_TEA'))
+            ->and($q->where('tea_id = :id', 3))
             ->then
                 ->exception(function() use ($q) {
                     $q->execute();
                 })
                 ->hasMessage('Query is empty')
             ->if($q->set(array(':id' => 3)))
-            ->if($result = $q->execute())
+            ->and($result = $q->execute())
             ->then
                 ->variable($result)
                 ->isIdenticalTo(5);
@@ -762,14 +762,14 @@ class Query extends atoum\test
 
         $this
             ->if($q = new \simpleframework\Norm\Query())
-            ->if($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
-            ->if($q->setDatabase($databaseMock))
-            ->if($q->setMetadata($metadata))
-            ->if($q->from('T_TEAM_TEA'))
-            ->if($q->where('id = :id AND name = :name AND note = :note', array(':id' => 3, ':name' => 'Bouh', ':note' => 3.7)))
-            ->if($q->execute())
-            ->if($q->execute())
-            ->if($nb = count($q))
+            ->and($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
+            ->and($q->setDatabase($databaseMock))
+            ->and($q->setMetadata($metadata))
+            ->and($q->from('T_TEAM_TEA'))
+            ->and($q->where('id = :id AND name = :name AND note = :note', array(':id' => 3, ':name' => 'Bouh', ':note' => 3.7)))
+            ->and($q->execute())
+            ->and($q->execute())
+            ->and($nb = count($q))
             ->then
                 ->variable($nb)
                 ->isIdenticalTo(3);
@@ -797,10 +797,10 @@ class Query extends atoum\test
 
         $this
             ->if($q = new \simpleframework\Norm\Query())
-            ->if($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
-            ->if($q->setDatabase($databaseMock))
-            ->if($q->setMetadata($metadata))
-            ->if($q->from('T_TEAM_TEA'))
+            ->and($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
+            ->and($q->setDatabase($databaseMock))
+            ->and($q->setMetadata($metadata))
+            ->and($q->from('T_TEAM_TEA'))
             ->exception(function() use ($q) {
                     $q->execute();
                 })
@@ -831,12 +831,12 @@ class Query extends atoum\test
 
         $this
             ->if($q = new \simpleframework\Norm\Query())
-            ->if($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
-            ->if($q->setDatabase($databaseMock))
-            ->if($q->setMetadata($metadata))
-            ->if($q->delete('T_TEAM_TEA'))
-            ->if($q->where('tea_id = :id', 3))
-            ->if($result = $q->execute())
+            ->and($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
+            ->and($q->setDatabase($databaseMock))
+            ->and($q->setMetadata($metadata))
+            ->and($q->delete('T_TEAM_TEA'))
+            ->and($q->where('tea_id = :id', 3))
+            ->and($result = $q->execute())
             ->then
                 ->variable($result)
                 ->isIdenticalTo(5);

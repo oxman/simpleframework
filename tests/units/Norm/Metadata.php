@@ -30,7 +30,7 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($table = $metadata->getTable('Match'))
+            ->and($table = $metadata->getTable('Match'))
             ->then
                 ->string($table)
                 ->isIdenticalTo('T_MATCH_MAT');
@@ -43,7 +43,7 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($table = $metadata->getTable('NotFound'))
+            ->and($table = $metadata->getTable('NotFound'))
             ->then
                 ->variable($table)
                 ->isNull();
@@ -56,7 +56,7 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($primary = $metadata->getPrimary('T_MATCH_MAT'))
+            ->and($primary = $metadata->getPrimary('T_MATCH_MAT'))
             ->then
                 ->array($primary)
                 ->isIdenticalTo(array(
@@ -76,7 +76,7 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($primary = $metadata->getPrimary('T_TABLE_NO_PRIMARY_TNP'))
+            ->and($primary = $metadata->getPrimary('T_TABLE_NO_PRIMARY_TNP'))
             ->then
                 ->variable($primary)
                 ->isNull();
@@ -89,7 +89,7 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($primary = $metadata->getPrimary('NotFound'))
+            ->and($primary = $metadata->getPrimary('NotFound'))
             ->then
                 ->variable($primary)
                 ->isNull();
@@ -102,7 +102,7 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($class = $metadata->getClass('T_MATCH_MAT'))
+            ->and($class = $metadata->getClass('T_MATCH_MAT'))
             ->then
                 ->string($class)
                 ->isIdenticalTo('Match');
@@ -115,7 +115,7 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($class = $metadata->getClass('T_NOT_FOUND_NFO'))
+            ->and($class = $metadata->getClass('T_NOT_FOUND_NFO'))
             ->then
                 ->variable($class)
                 ->isNull();
@@ -144,7 +144,7 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($columns = $metadata->getColumns('T_TEAM_TEA'))
+            ->and($columns = $metadata->getColumns('T_TEAM_TEA'))
             ->then
                 ->array($columns)
                 ->isIdenticalTo($columnsRef);
@@ -157,7 +157,7 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($columns = $metadata->getColumns('T_NOT_FOUND_NFO'))
+            ->and($columns = $metadata->getColumns('T_NOT_FOUND_NFO'))
             ->then
                 ->array($columns)
                 ->isIdenticalTo(array());
@@ -170,7 +170,7 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($columns = $metadata->getColumns('T_TABLE_NO_COLUMNS_TNC'))
+            ->and($columns = $metadata->getColumns('T_TABLE_NO_COLUMNS_TNC'))
             ->then
                 ->array($columns)
                 ->isIdenticalTo(array());
@@ -189,7 +189,7 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($column = $metadata->getColumnByName('T_TEAM_TEA', '_name'))
+            ->and($column = $metadata->getColumnByName('T_TEAM_TEA', '_name'))
             ->then
                 ->array($column)
                 ->isIdenticalTo($columnRef);
@@ -202,7 +202,7 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($column = $metadata->getColumnByName('T_NOT_FOUND_NFO', '_name'))
+            ->and($column = $metadata->getColumnByName('T_NOT_FOUND_NFO', '_name'))
             ->then
                 ->variable($column)
                 ->isNull();
@@ -215,7 +215,7 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($column = $metadata->getColumnByName('T_TABLE_NO_COLUMNS_TNC', '_name'))
+            ->and($column = $metadata->getColumnByName('T_TABLE_NO_COLUMNS_TNC', '_name'))
             ->then
                 ->variable($column)
                 ->isNull();
@@ -228,7 +228,7 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($column = $metadata->getColumnByName('T_TEAM_TEA', '_notFound'))
+            ->and($column = $metadata->getColumnByName('T_TEAM_TEA', '_notFound'))
             ->then
                 ->variable($column)
                 ->isNull();
@@ -246,7 +246,7 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($column = $metadata->getColumnByKey('T_TEAM_TEA', 'tea_name'))
+            ->and($column = $metadata->getColumnByKey('T_TEAM_TEA', 'tea_name'))
             ->then
                 ->array($column)
                 ->isIdenticalTo($columnRef);
@@ -259,7 +259,7 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($column = $metadata->getColumnByKey('T_NOT_FOUND_NFO', 'tea_name'))
+            ->and($column = $metadata->getColumnByKey('T_NOT_FOUND_NFO', 'tea_name'))
             ->then
                 ->variable($column)
                 ->isNull();
@@ -272,7 +272,7 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($column = $metadata->getColumnByKey('T_TABLE_NO_COLUMNS_TNC', '_name'))
+            ->and($column = $metadata->getColumnByKey('T_TABLE_NO_COLUMNS_TNC', '_name'))
             ->then
                 ->variable($column)
                 ->isNull();
@@ -285,7 +285,7 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($column = $metadata->getColumnByKey('T_TEAM_TEA', '_notFound'))
+            ->and($column = $metadata->getColumnByKey('T_TEAM_TEA', '_notFound'))
             ->then
                 ->variable($column)
                 ->isNull();
@@ -320,11 +320,11 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($team = new \Team())
-            ->if($team->setId(3))
-            ->if($team->setName('Olympique de Marseille'))
-            ->if($team->setAlias('OM'))
-            ->if($object = $metadata->mapToObjects($columns, $targets))
+            ->and($team = new \Team())
+            ->and($team->setId(3))
+            ->and($team->setName('Olympique de Marseille'))
+            ->and($team->setAlias('OM'))
+            ->and($object = $metadata->mapToObjects($columns, $targets))
             ->then
                 ->object($object)
                 ->isCloneOf($team);
@@ -337,7 +337,7 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($object = $metadata->mapToObjects(array(), array()))
+            ->and($object = $metadata->mapToObjects(array(), array()))
             ->then
                 ->variable($object)
                 ->isNull();
@@ -381,14 +381,14 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($match = new \Match())
-            ->if($match->setId(7))
-            ->if($match->setDate('2012-12-11'))
-            ->if($team = new \Team())
-            ->if($team->setId(3))
-            ->if($team->setName('Olympique de Marseille'))
-            ->if($match->teamHome = $team)
-            ->if($object = $metadata->mapToObjects($columns, $targets))
+            ->and($match = new \Match())
+            ->and($match->setId(7))
+            ->and($match->setDate('2012-12-11'))
+            ->and($team = new \Team())
+            ->and($team->setId(3))
+            ->and($team->setName('Olympique de Marseille'))
+            ->and($match->teamHome = $team)
+            ->and($object = $metadata->mapToObjects($columns, $targets))
             ->then
                 ->object($object)
                 ->isCloneOf($match);
@@ -408,9 +408,9 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($object = $metadata->mapToObject(array($stdClass), 'T_TEAM_TEA', 'teamHome'))
-            ->if($teamRef = new \Team())
-            ->if($teamRef->now = 3)
+            ->and($object = $metadata->mapToObject(array($stdClass), 'T_TEAM_TEA', 'teamHome'))
+            ->and($teamRef = new \Team())
+            ->and($teamRef->now = 3)
             ->then
                 ->object($object)
                 ->isCloneOf($teamRef);
@@ -423,7 +423,7 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($object = $metadata->mapToObject(null, 'T_TEAM_TEA', 'teamHome'))
+            ->and($object = $metadata->mapToObject(null, 'T_TEAM_TEA', 'teamHome'))
             ->then
                 ->variable($object)
                 ->isNull();
@@ -436,7 +436,7 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($metadata2 = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
+            ->and($metadata2 = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
             ->then
                 ->object($metadata)
                 ->isIdenticalTo($metadata2);
@@ -460,9 +460,9 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($params = $metadata->parseComment($comment))
-            ->if(ksort($params))
-            ->if(ksort($paramsRef))
+            ->and($params = $metadata->parseComment($comment))
+            ->and(ksort($params))
+            ->and(ksort($paramsRef))
             ->then
                 ->array($params)
                 ->isIdenticalTo($paramsRef);
@@ -471,7 +471,7 @@ class Metadata extends atoum\test
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
-            ->if($params = $metadata->parseComment($comment))
+            ->and($params = $metadata->parseComment($comment))
             ->then
                 ->variable($params)
                 ->isNull();
