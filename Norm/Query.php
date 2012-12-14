@@ -90,23 +90,14 @@ class Query implements \Countable, Observer\Subject
     protected function _connect()
     {
 
-        if ($this->_config === null) {
-            $this->_config = \simpleframework\Kernel::getConfig('db');
-        }
-
-        if ($this->_database === null) {
-            $this->_database = new Adapter\Driver\Mysqli\Mysqli();
-        }
-
-        if ($this->_metadata === null) {
-            $this->_metadata = Metadata::getInstance();
-        }
-
         if (isset(self::$_connections[$this->_connection]) === false) {
-            $database = $this->_database->connect($this->_config[$this->_connection]['hostname'],
-                            $this->_config[$this->_connection]['username'],
-                            $this->_config[$this->_connection]['password'],
-                            $this->_config[$this->_connection]['database']);
+            $config = $this->getConfig();
+
+            $database = $this->getDatabase()->connect(
+                            $config[$this->_connection]['hostname'],
+                            $config[$this->_connection]['username'],
+                            $config[$this->_connection]['password'],
+                            $config[$this->_connection]['database']);
 
             $database->query("SET NAMES 'utf8'");
             self::$_connections[$this->_connection] = $database;
@@ -123,6 +114,18 @@ class Query implements \Countable, Observer\Subject
     }
 
 
+    public function getConfig()
+    {
+
+        if ($this->_config === null) {
+            $this->_config = \simpleframework\Kernel::getConfig('db');
+        }
+
+        return $this->_config;
+
+    }
+
+
     public function setMetadata(Adapter\Metadata $metadata)
     {
 
@@ -131,10 +134,34 @@ class Query implements \Countable, Observer\Subject
     }
 
 
+    public function getMetadata()
+    {
+
+        if ($this->_metadata === null) {
+            $this->_metadata = Metadata::getInstance();
+        }
+
+        return $this->_metadata;
+
+    }
+
+
     public function setDatabase(Adapter\Database $database)
     {
 
         $this->_database = $database;
+
+    }
+
+
+    public function getDatabase()
+    {
+
+        if ($this->_database === null) {
+            $this->_database = new Adapter\Driver\Mysqli\Mysqli();
+        }
+
+        return $this->_database;
 
     }
 
@@ -352,7 +379,7 @@ class Query implements \Countable, Observer\Subject
                 $names = array();
 
                 foreach(array_keys($this->_query['set']) as $key) {
-                    $columnInfo = $this->_metadata->getColumnByName($this->_query['target'], substr($key, 1));
+                    $columnInfo = $this->getMetadata()->getColumnByName($this->_query['target'], substr($key, 1));
                     $names[] = $columnInfo['key'];
                 }
 
@@ -370,7 +397,7 @@ class Query implements \Countable, Observer\Subject
                 $columns = array();
 
                 foreach($this->_query['set'] as $key => $value) {
-                    $columnInfo = $this->_metadata->getColumnByName($this->_query['target'], substr($key, 1));
+                    $columnInfo = $this->getMetadata()->getColumnByName($this->_query['target'], substr($key, 1));
                     $columns[] = $columnInfo['key'] . ' = ' . $key;
                 }
 
@@ -467,7 +494,7 @@ class Query implements \Countable, Observer\Subject
 
         $data = $this->_processRow($result);
 
-        $object = $this->_metadata->mapToObjects($data, $this->_targets);
+        $object = $this->getMetadata()->mapToObjects($data, $this->_targets);
 
         return $object;
 
