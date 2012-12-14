@@ -844,4 +844,46 @@ class Query extends atoum\test
     }
 
 
+    public function testGetConfig()
+    {
+
+        $kernel = new \simpleframework\Kernel();
+        $kernel->init('dev');
+
+        $this
+            ->if($q = new \simpleframework\Norm\Query())
+            ->and($config = $q->getConfig())
+            ->then
+                ->array($config)
+                ->hasKey("default");
+
+    }
+
+
+    public function testGetMetadata()
+    {
+
+        $this
+            ->if($q = new \simpleframework\Norm\Query())
+            ->and($metadata = $q->getMetadata())
+            ->then
+                ->object($metadata)
+                ->isInstanceOf("\simpleframework\Norm\Metadata");
+
+    }
+
+
+    public function testGetDatabase()
+    {
+
+        $this
+            ->if($q = new \simpleframework\Norm\Query())
+            ->and($database = $q->getDatabase())
+            ->then
+                ->object($database)
+                ->isInstanceOf("\simpleframework\Norm\Adapter\Database");
+
+    }
+
+
 }
