@@ -19,6 +19,17 @@ class Autoloader
 
         if (file_exists($file = ROOT . '/vendor/simpleframework/tests/model/' . $class . '.php') === true) {
             include_once $file;
+            return;
+        }
+
+        if (file_exists($file = ROOT . '/app/model/' . $class . '.php') === true) {
+            include_once $file;
+            return;
+        }
+
+        if (file_exists($file = ROOT . '/vendor/' . str_replace('\\', '/', $class) . '.php') === true) {
+            include_once $file;
+            return;
         }
 
     }
