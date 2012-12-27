@@ -58,11 +58,11 @@ class Helper extends \Twig_Extension
     public function selected($var, $value)
     {
 
-        if ($var == $value) {
+        if ($var == $value || (is_array($value) && in_array($var, $value) === true)) {
             return ' selected="selected"';
-        } else {
-            return '';
         }
+
+        return '';
 
     }
 
