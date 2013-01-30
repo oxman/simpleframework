@@ -67,11 +67,11 @@ class Model
 
         switch ($type) {
             case 'int':
-                return (int) $value;
+                return intval($value);
                 break;
 
-            case 'float':
-                return (float) $value;
+            case 'double':
+                return floatval($value);
                 break;
 
             case 'datetime':
