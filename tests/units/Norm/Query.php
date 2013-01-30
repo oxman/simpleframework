@@ -27,6 +27,30 @@ class Query extends atoum\test
     }
 
 
+    public function testIterator()
+    {
+
+        $this
+            ->if($q = new \simpleframework\Norm\Query())
+            ->then
+                ->object($q)
+                ->isInstanceOf('\Iterator');
+
+    }
+
+
+    public function testCountable()
+    {
+
+        $this
+            ->if($q = new \simpleframework\Norm\Query())
+            ->then
+                ->object($q)
+                ->isInstanceOf('\Countable');
+
+    }
+
+
     public function testFrom()
     {
 
@@ -882,6 +906,282 @@ class Query extends atoum\test
             ->then
                 ->object($database)
                 ->isInstanceOf("\simpleframework\Norm\Adapter\Database");
+
+    }
+
+
+    public function testRewind()
+    {
+
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\Database', '\DatabaseMock');
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\DatabaseStatement', '\DatabaseStatementMock');
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\DatabaseResult', '\DatabaseResultMock');
+
+        $databaseMock = new \DatabaseMock\Database();
+        $databaseStatementMock = new \DatabaseStatementMock\DatabaseStatement();
+        $databaseResultMock = new \DatabaseResultMock\DatabaseResult();
+
+        $databaseMock->getMockController()->connect = $databaseMock;
+        $databaseMock->getMockController()->prepare = $databaseStatementMock;
+        $databaseStatementMock->getMockController()->execute = $databaseStatementMock;
+        $databaseStatementMock->getMockController()->getResult = $databaseResultMock;
+        $databaseResultMock->getMockController()->dataSeek = null;
+        $databaseResultMock->getMockController()->fetchArray = array(3, 'Olympique de Marseille', 'OM');
+
+        $databaseResultMock->getMockController()->fetchFields = function() {
+            $fields = array();
+
+            $stdClass = new \stdClass();
+            $stdClass->name    = 'tea_id';
+            $stdClass->orgname = 'tea_id';
+            $stdClass->table   = 'T_TEAM_TEA';
+            $fields[] = $stdClass;
+
+            $stdClass = new \stdClass();
+            $stdClass->name    = 'tea_name';
+            $stdClass->orgname = 'tea_name';
+            $stdClass->table   = 'T_TEAM_TEA';
+            $fields[] = $stdClass;
+
+            $stdClass = new \stdClass();
+            $stdClass->name    = 'tea_alias';
+            $stdClass->orgname = 'tea_alias';
+            $stdClass->table   = 'T_TEAM_TEA';
+            $fields[] = $stdClass;
+
+            return $fields;
+
+        };
+
+        $metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
+
+        $this
+            ->if($q = new \simpleframework\Norm\Query())
+            ->and($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
+            ->and($q->setDatabase($databaseMock))
+            ->and($q->setMetadata($metadata))
+            ->and($q->from('T_TEAM_TEA'))
+            ->and($q->rewind())
+            ->and($key = $q->key())
+            ->then
+                ->variable($key)
+                ->isIdenticalTo(0)
+            ->mock($databaseResultMock)
+                ->call('dataSeek')->once();
+
+    }
+
+
+    public function testValid()
+    {
+
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\Database', '\DatabaseMock');
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\DatabaseStatement', '\DatabaseStatementMock');
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\DatabaseResult', '\DatabaseResultMock');
+
+        $databaseMock = new \DatabaseMock\Database();
+        $databaseStatementMock = new \DatabaseStatementMock\DatabaseStatement();
+        $databaseResultMock = new \DatabaseResultMock\DatabaseResult();
+
+        $databaseMock->getMockController()->connect = $databaseMock;
+        $databaseMock->getMockController()->prepare = $databaseStatementMock;
+        $databaseStatementMock->getMockController()->execute = $databaseStatementMock;
+        $databaseStatementMock->getMockController()->getResult = $databaseResultMock;
+        $databaseResultMock->getMockController()->dataSeek = null;
+        $databaseResultMock->getMockController()->fetchArray = array(3, 'Olympique de Marseille', 'OM');
+
+        $databaseResultMock->getMockController()->fetchFields = function() { return null; };
+
+        $metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
+
+        $this
+            ->if($q = new \simpleframework\Norm\Query())
+            ->and($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
+            ->and($q->setDatabase($databaseMock))
+            ->and($q->setMetadata($metadata))
+            ->and($q->from('T_TEAM_TEA'))
+            ->and($q->rewind())
+            ->and($isValid = $q->valid())
+            ->then
+                ->boolean($isValid)
+                ->isIdenticalTo(false);
+
+        $databaseResultMock->getMockController()->fetchFields = function() {
+            $fields = array();
+
+            $stdClass = new \stdClass();
+            $stdClass->name    = 'tea_id';
+            $stdClass->orgname = 'tea_id';
+            $stdClass->table   = 'T_TEAM_TEA';
+            $fields[] = $stdClass;
+
+            $stdClass = new \stdClass();
+            $stdClass->name    = 'tea_name';
+            $stdClass->orgname = 'tea_name';
+            $stdClass->table   = 'T_TEAM_TEA';
+            $fields[] = $stdClass;
+
+            $stdClass = new \stdClass();
+            $stdClass->name    = 'tea_alias';
+            $stdClass->orgname = 'tea_alias';
+            $stdClass->table   = 'T_TEAM_TEA';
+            $fields[] = $stdClass;
+
+            return $fields;
+
+        };
+
+        $this
+            ->if($q = new \simpleframework\Norm\Query())
+            ->and($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
+            ->and($q->setDatabase($databaseMock))
+            ->and($q->setMetadata($metadata))
+            ->and($q->from('T_TEAM_TEA'))
+            ->and($q->rewind())
+            ->and($isValid = $q->valid())
+            ->then
+                ->boolean($isValid)
+                ->isIdenticalTo(true);
+
+    }
+
+
+    public function testCurrent()
+    {
+
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\Database', '\DatabaseMock');
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\DatabaseStatement', '\DatabaseStatementMock');
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\DatabaseResult', '\DatabaseResultMock');
+
+        $databaseMock = new \DatabaseMock\Database();
+        $databaseStatementMock = new \DatabaseStatementMock\DatabaseStatement();
+        $databaseResultMock = new \DatabaseResultMock\DatabaseResult();
+
+        $databaseMock->getMockController()->connect = $databaseMock;
+        $databaseMock->getMockController()->prepare = $databaseStatementMock;
+        $databaseStatementMock->getMockController()->execute = $databaseStatementMock;
+        $databaseStatementMock->getMockController()->getResult = $databaseResultMock;
+        $databaseResultMock->getMockController()->dataSeek = null;
+        $databaseResultMock->getMockController()->fetchArray = array(3, 'Olympique de Marseille', 'OM');
+
+        $databaseResultMock->getMockController()->fetchFields = function() {
+            $fields = array();
+
+            $stdClass = new \stdClass();
+            $stdClass->name    = 'tea_id';
+            $stdClass->orgname = 'tea_id';
+            $stdClass->table   = 'T_TEAM_TEA';
+            $fields[] = $stdClass;
+
+            $stdClass = new \stdClass();
+            $stdClass->name    = 'tea_name';
+            $stdClass->orgname = 'tea_name';
+            $stdClass->table   = 'T_TEAM_TEA';
+            $fields[] = $stdClass;
+
+            $stdClass = new \stdClass();
+            $stdClass->name    = 'tea_alias';
+            $stdClass->orgname = 'tea_alias';
+            $stdClass->table   = 'T_TEAM_TEA';
+            $fields[] = $stdClass;
+
+            return $fields;
+
+        };
+
+        $metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
+
+        $team = new \Team;
+        $team->setId(3);
+        $team->setName('Olympique de Marseille');
+        $team->setAlias('OM');
+
+        $this
+            ->if($q = new \simpleframework\Norm\Query())
+            ->and($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
+            ->and($q->setDatabase($databaseMock))
+            ->and($q->setMetadata($metadata))
+            ->and($q->from('T_TEAM_TEA'))
+            ->and($q->rewind())
+            ->and($isValid = $q->valid())
+            ->then
+                ->boolean($isValid)
+                ->isIdenticalTo(true)
+            ->and($current = $q->current())
+            ->then
+                ->object($current)
+                ->isInstanceOf('\Team')
+                ->isCloneOf($team);
+
+    }
+
+
+    public function testNext()
+    {
+
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\Database', '\DatabaseMock');
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\DatabaseStatement', '\DatabaseStatementMock');
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\DatabaseResult', '\DatabaseResultMock');
+
+        $databaseMock = new \DatabaseMock\Database();
+        $databaseStatementMock = new \DatabaseStatementMock\DatabaseStatement();
+        $databaseResultMock = new \DatabaseResultMock\DatabaseResult();
+
+        $databaseMock->getMockController()->connect = $databaseMock;
+        $databaseMock->getMockController()->prepare = $databaseStatementMock;
+        $databaseStatementMock->getMockController()->execute = $databaseStatementMock;
+        $databaseStatementMock->getMockController()->getResult = $databaseResultMock;
+        $databaseResultMock->getMockController()->dataSeek = null;
+        $databaseResultMock->getMockController()->fetchArray = array(3, 'Olympique de Marseille', 'OM');
+
+        $databaseResultMock->getMockController()->fetchFields = function() {
+            $fields = array();
+
+            $stdClass = new \stdClass();
+            $stdClass->name    = 'tea_id';
+            $stdClass->orgname = 'tea_id';
+            $stdClass->table   = 'T_TEAM_TEA';
+            $fields[] = $stdClass;
+
+            $stdClass = new \stdClass();
+            $stdClass->name    = 'tea_name';
+            $stdClass->orgname = 'tea_name';
+            $stdClass->table   = 'T_TEAM_TEA';
+            $fields[] = $stdClass;
+
+            $stdClass = new \stdClass();
+            $stdClass->name    = 'tea_alias';
+            $stdClass->orgname = 'tea_alias';
+            $stdClass->table   = 'T_TEAM_TEA';
+            $fields[] = $stdClass;
+
+            return $fields;
+
+        };
+
+        $metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
+
+        $team = new \Team;
+        $team->setId(3);
+        $team->setName('Olympique de Marseille');
+        $team->setAlias('OM');
+
+        $this
+            ->if($q = new \simpleframework\Norm\Query())
+            ->and($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
+            ->and($q->setDatabase($databaseMock))
+            ->and($q->setMetadata($metadata))
+            ->and($q->from('T_TEAM_TEA'))
+            ->and($q->rewind())
+            ->and($key = $q->key())
+            ->then
+                ->variable($key)
+                ->isIdenticalTo(0)
+            ->if($q->next())
+            ->and($key = $q->key())
+            ->then
+                ->variable($key)
+                ->isIdenticalTo(1);
 
     }
 

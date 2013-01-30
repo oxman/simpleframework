@@ -7,7 +7,7 @@ require_once ROOT . '/vendor/simpleframework/Norm/Metadata.php';
 require_once ROOT . '/vendor/simpleframework/Norm/Observer/Subject.php';
 
 
-class Query implements \Countable, Observer\Subject
+class Query implements \Iterator, \Countable, Observer\Subject
 {
 
     const TYPE_SELECT = 'select';
@@ -31,14 +31,16 @@ class Query implements \Countable, Observer\Subject
         'set'   => array()
     );
 
-    protected $_config     = null;
-    protected $_numberRows = null;
-    protected $_targets    = array();
-    protected $_metadata   = null;
-    protected $_database   = null;
-    protected $_stmtData   = null;
-    protected $_stmtResult = null;
-    protected $_observers  = array();
+    protected $_config       = null;
+    protected $_numberRows   = null;
+    protected $_targets      = array();
+    protected $_metadata     = null;
+    protected $_database     = null;
+    protected $_stmtData     = null;
+    protected $_stmtResult   = null;
+    protected $_stmtPosition = null;
+    protected $_stmtRow      = null;
+    protected $_observers    = array();
 
 
     /** Observer **/
@@ -507,6 +509,10 @@ class Query implements \Countable, Observer\Subject
         $data   = $result->fetchArray();
         $fields = $result->fetchFields();
 
+        if ($fields === null) {
+            return null;
+        }
+
         foreach($fields as $i => &$field) {
             $field->value = $data[$i];
         }
@@ -643,15 +649,13 @@ class Query implements \Countable, Observer\Subject
 
 
     /** iterator **/
-/*
+
     public function rewind()
     {
 
-        $this->_stmtData = // force rewind cursor to 0
-        $this->_itPosition = 0;
-     //
-        $this->_itStmt     = $this->_execute();
-    //    $this->next();
+        $this->execute();
+        $this->_stmtResult->dataSeek(0);
+        $this->_stmtPosition = 0;
 
     }
 
@@ -659,22 +663,11 @@ class Query implements \Countable, Observer\Subject
     public function valid()
     {
 
-        if ($this->_itCurrent[1] === false) {
-            return false;
-        } else {
+        if ($this->_stmtResult->fetchArray() !== null) {
             return true;
         }
 
-    }
-
-
-    public function current()
-    {
-
-        $data = $this->_stmtData->fetch(\PDO::FETCH_ASSOC);
-        $this->_itCurrent = $this->_meta->mapToObjects($data, $this->_targets);
-
-        return $this->_itCurrent;
+        return false;
 
     }
 
@@ -682,35 +675,28 @@ class Query implements \Countable, Observer\Subject
     public function key()
     {
 
-        return $this->_itCurrent->getId();
+        return $this->_stmtPosition;
 
     }
+
+
+    public function current()
+    {
+
+        $data = $this->_processRow($this->_stmtResult);
+        $object = $this->getMetadata()->mapToObjects($data, $this->_targets);
+
+        return $object;
+
+    }
+
 
     public function next()
     {
 
-        if ($this->_itCurrent[0] === $this->_itPosition) {
-            return $this->_itCurrent[1];
-        }
-
-        $this->_itCurrent[0] = $this->_itPosition;
-
-        $data = $this->_itStmt->fetch(\PDO::FETCH_ASSOC);
-        $this->_itCurrent[1] = $this->_meta->mapToObjects($data, $this->_targets);
-
-        } else {
-            $this->_itCurrent[1] = false;
-        }
-
-        ++$this->_itPosition;
+        $this->_stmtPosition++;
 
     }
-
-
-
-*/
-
-
 
 
     /** countable **/
@@ -762,6 +748,11 @@ class Query implements \Countable, Observer\Subject
         }
 
         $data = $this->_processRow($result);
+
+        if ($data === null) {
+            return 0;
+        }
+
         $this->_numberRows = (int) $data[0]->value;
 
         return $this->_numberRows;
