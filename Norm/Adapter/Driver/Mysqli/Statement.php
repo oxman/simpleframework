@@ -24,7 +24,16 @@ class Statement implements \simpleframework\Norm\Adapter\DatabaseStatement
     public function bindParams(array $params)
     {
 
-        call_user_func_array(array($this->_statement, 'bind_param'), $params);
+        if (strnatcmp(phpversion(),'5.3') >= 0) {
+            $refs = array();
+            foreach($params as $key => $value) {
+                $refs[$key] = &$params[$key];
+            }
+        } else {
+            $refs = $params;
+        }
+
+        call_user_func_array(array($this->_statement, 'bind_param'), $refs);
 
     }
 
