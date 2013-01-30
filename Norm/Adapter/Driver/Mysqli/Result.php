@@ -21,6 +21,14 @@ class Result implements \simpleframework\Norm\Adapter\DatabaseResult
     }
 
 
+    public function dataSeek($offset)
+    {
+
+        return $this->_result->data_seek($offset);
+
+    }
+
+
     public function fetchArray()
     {
 
