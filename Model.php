@@ -103,7 +103,7 @@ class Model
 
         // if the method doesn't start with set or get, we remap the call in get
         // feature for Twig
-        if (strpos($name, 'set') === false && strpos($name, 'get') === false) {
+        if (substr($name, 3) !== 'set' && substr($name, 3) !== 'get') {
             return $this->{'get' . ucfirst($name)}();
         }
 
