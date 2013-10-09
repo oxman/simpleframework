@@ -103,9 +103,11 @@ class Model
 
         // if the method doesn't start with set or get, we remap the call in get
         // feature for Twig
-        if (substr($name, 3) !== 'set' && substr($name, 3) !== 'get') {
+        if (substr($name, 0, 3) !== 'set' && substr($name, 0, 3) !== 'get') {
             return $this->{'get' . ucfirst($name)}();
         }
+
+
 
         $propertyName           = lcfirst(substr($name, 3));
         $propertyNameUnderscore = strtolower(preg_replace('/([A-Z])/', '_$1', lcfirst(substr($name, 3))));
