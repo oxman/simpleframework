@@ -107,8 +107,6 @@ class Model
             return $this->{'get' . ucfirst($name)}();
         }
 
-
-
         $propertyName           = lcfirst(substr($name, 3));
         $propertyNameUnderscore = strtolower(preg_replace('/([A-Z])/', '_$1', lcfirst(substr($name, 3))));
 
