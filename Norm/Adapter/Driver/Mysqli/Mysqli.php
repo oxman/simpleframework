@@ -17,7 +17,20 @@ class Mysqli implements \simpleframework\Norm\Adapter\Database
     {
 
         $this->_connection = new \mysqli($hostname, $username, $password, $database);
+
+        if (mysqli_connect_error()) {
+            die('Connect Error (' . mysqli_connect_errno() . ') '. mysqli_connect_error());
+        }
+
         return $this;
+
+    }
+
+
+    public function escape($value)
+    {
+
+        return $this->_connection->real_escape_string($value);
 
     }
 
