@@ -37,6 +37,7 @@ class Query implements \Iterator, \Countable, Observer\Subject
     protected $_metadata     = null;
     protected $_database     = null;
     protected $_stmtData     = null;
+    protected $_stmtReturn   = null;
     protected $_stmtResult   = null;
     protected $_stmtPosition = null;
     protected $_stmtRow      = null;
@@ -84,6 +85,7 @@ class Query implements \Iterator, \Countable, Observer\Subject
     {
 
         $this->_connection = $connection;
+
         return $this;
 
     }
@@ -248,8 +250,7 @@ class Query implements \Iterator, \Countable, Observer\Subject
     public function set(array $data)
     {
 
-        $this->_query['set']   = array_merge($this->_query['set'], array_keys($data));
-        $this->_query['value'] = array_merge($this->_query['value'], array_values($data));
+        $this->_query['set']   = array_merge($this->_query['set'], $data);
         return $this;
 
     }
@@ -379,13 +380,20 @@ class Query implements \Iterator, \Countable, Observer\Subject
                 }
 
                 $names = array();
+                $values = array();
 
-                foreach(array_keys($this->_query['set']) as $key) {
-                    $columnInfo = $this->getMetadata()->getColumnByName($this->_query['target'], substr($key, 1));
-                    $names[] = $columnInfo['key'];
+                $this->_connect();
+
+                foreach($this->_query['set'] as $key => $value) {
+                    if (is_string($value) === true) {
+                        $value = '\'' . self::$_connections[$this->_connection]->escape($value) . '\'';
+                    }
+
+                    $values[] = $value;
+                    $names[] = $key;
                 }
 
-                $sql .= ' (' . implode(', ', $names) . ') VALUES (' . implode(', ', array_keys($this->_query['set'])) . ')';
+                $sql .= ' (' . implode(', ', $names) . ') VALUES (' . implode(', ', $values) . ')';
 
             break;
 
@@ -397,10 +405,14 @@ class Query implements \Iterator, \Countable, Observer\Subject
                 }
 
                 $columns = array();
+                $this->_connect();
 
                 foreach($this->_query['set'] as $key => $value) {
-                    $columnInfo = $this->getMetadata()->getColumnByName($this->_query['target'], substr($key, 1));
-                    $columns[] = $columnInfo['key'] . ' = ' . $key;
+                    if (is_string($value) === true) {
+                        $value = '\'' . self::$_connections[$this->_connection]->escape($value) . '\'';
+                    }
+
+                    $columns[] = $key . ' = ' . $value;
                 }
 
                 $sql .= ' SET ' . implode(', ', $columns);
@@ -526,7 +538,11 @@ class Query implements \Iterator, \Countable, Observer\Subject
     {
 
         if ($this->_stmtData === null) {
-            $this->_execute();
+            $this->_stmtReturn = $this->_execute();
+        }
+
+        if ($this->_stmtReturn === false) {
+            return false;
         }
 
         switch ($this->_query['type']) {
@@ -595,6 +611,7 @@ class Query implements \Iterator, \Countable, Observer\Subject
         }
 
         $this->_connect();
+
         $connection = self::$_connections[$this->_connection];
         $this->_stmtData = $connection->prepare($sql);
 
@@ -605,7 +622,7 @@ class Query implements \Iterator, \Countable, Observer\Subject
         $start = microtime(true);
 
         if ($this->_stmtData !== false) {
-            $this->_stmtData->execute();
+            $this->_stmtReturn = $this->_stmtData->execute();
         }
 
         $this->notify(array(
@@ -622,6 +639,9 @@ class Query implements \Iterator, \Countable, Observer\Subject
         if ($this->_stmtData == false) {
             throw new \Exception($connection->getErrorMessage(), $connection->getErrorNo());
         }
+
+
+        return $this->_stmtReturn;
 
     }
 
@@ -722,6 +742,7 @@ class Query implements \Iterator, \Countable, Observer\Subject
         }
 
         $this->_connect();
+
         $sql = 'SELECT FOUND_ROWS()';
         $connection = self::$_connections[$this->_connection];
         $stmt = $connection->prepare($sql);
