@@ -43,6 +43,10 @@ class Kernel
         require_once ROOT . '/vendor/simpleframework/Query.php';
         require_once ROOT . '/vendor/simpleframework/Controller.php';
 
+        require_once ROOT . '/vendor/simpleframework/Norm/Query.php';
+        require_once ROOT . '/vendor/simpleframework/Norm/Model.php';
+        require_once ROOT . '/vendor/simpleframework/Norm/Metadata.php';
+
         $this->_loadEnv($env);
 
         Autoloader::register();
@@ -214,7 +218,7 @@ class Kernel
 
             if (($domain === false || isset($_SERVER['HTTP_HOST']) === true
                 && self::$_config['domain'][$domain] === $_SERVER['HTTP_HOST'])
-                && preg_match($patternRoute, $_SERVER['REDIRECT_URL'], $params) > 0) {
+                && preg_match($patternRoute, $_SERVER['REQUEST_URI'], $params) > 0) {
                 break;
             }
 
