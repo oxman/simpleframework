@@ -172,7 +172,23 @@ class Model
     }
 
 
+    public function update()
+    {
+
+        return $this->_save('update');
+
+    }
+
+
     public function save()
+    {
+
+        return $this->_save('insert');
+
+    }
+
+
+    protected function _save($mode)
     {
 
         $class    = get_called_class();
@@ -195,12 +211,21 @@ class Model
 
         $q = ModelDependencyInjection::getQuery();
 
-        $id = $q->insert($table)
-          ->set($columns)
-          ->execute();
+        if ($mode === 'insert') {
+            $id = $q->insert($table)
+                    ->set($columns)
+                    ->execute();
+        } else {
+            $id = $q->update($table)
+                    ->set($columns)
+                    ->where($column['key'] . ' = :' . $column['key'], array(':' . $column['key'] => $this->$column['params']['name']))
+                    ->execute();
+        }
 
         if (is_numeric($id) === true) {
-            $this->$column['params']['name'] = $id;
+            if ($mode === 'insert') {
+                $this->$column['params']['name'] = $id;
+            }
             return true;
         } else {
             return false;

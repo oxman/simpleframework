@@ -146,4 +146,39 @@ class Model extends atoum\test
     }
 
 
+    public function testUpdate()
+    {
+
+        $metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
+        $this->mockGenerator->generate('\simpleframework\Norm\Query', '\QueryMock');
+        $queryMock = new \QueryMock\Query();
+        $queryMock->getMockController()->execute = 3;
+
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\Database', '\DatabaseMock');
+        $databaseMock = new \DatabaseMock\Database();
+        $databaseMock->getMockController()->connect = $databaseMock;
+        $databaseMock->getMockController()->escape = function($value) { return $value; };
+
+        $queryMock->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => '')));
+        $queryMock->setDatabase($databaseMock);
+
+        \simpleframework\Norm\ModelDependencyInjection::setMetadata($metadata);
+        \simpleframework\Norm\ModelDependencyInjection::setQuery($queryMock);
+
+        $this
+            ->if($team = new \Team) // in standard code use Team::getById(1)
+            ->and($team->setId(4))
+            ->and($team->setName('Bouh'))
+            ->and($result = $team->update())
+            ->and($sql = $queryMock->getSql())
+            ->then
+                ->string($sql)
+                ->isIdenticalTo('UPDATE T_TEAM_TEA SET tea_name = \'Bouh\' WHERE tea_id = 4')
+            ->then
+                ->boolean($result)
+                ->isIdenticalTo(true);
+
+    }
+
+
 }
