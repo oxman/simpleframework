@@ -1,0 +1,5 @@
+
+INSERT INTO T_FLOW_FLO (usr_id, pla_id, mat_id, bet_id, flo_credits, flo_date)
+        SELECT (b.usr_id, $place->getId(), $match->getId(), b.bet_id, b.bet_points, now()) FROM T_BET_BET b WHERE b.bli_id = $this->getId()
+
+->where()
