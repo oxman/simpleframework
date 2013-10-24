@@ -102,23 +102,20 @@ class Query extends atoum\test
     public function testUpdate()
     {
 
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\Database', '\DatabaseMock');
+
+        $databaseMock = new \DatabaseMock\Database();
+        $databaseMock->getMockController()->connect = $databaseMock;
+        $databaseMock->getMockController()->escape = function($value) { return $value; };
+
         $this
             ->if($q = new \simpleframework\Norm\Query())
+            ->and($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
+            ->and($q->setDatabase($databaseMock))
+            ->and($sql = $q->update("test")->set(array('toto' => 'tutu'))->getSql())
             ->then
-                ->object($q)
-                ->isInstanceOf('\simpleframework\Norm\Query')
-            ->if($q = $q->update("test"))
-            ->then
-                ->object($q)
-                ->isInstanceOf('\simpleframework\Norm\Query')
-            ->if($target = $q->getTarget())
-            ->then
-                ->string($target)
-                ->isIdenticalTo('test')
-            ->if($type = $q->getType())
-            ->then
-                ->string($type)
-                ->isIdenticalTo($q::TYPE_UPDATE);
+                ->string($sql)
+                ->isIdenticalTo('UPDATE test SET toto = \'tutu\'');
 
     }
 
@@ -126,23 +123,20 @@ class Query extends atoum\test
     public function testInsert()
     {
 
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\Database', '\DatabaseMock');
+
+        $databaseMock = new \DatabaseMock\Database();
+        $databaseMock->getMockController()->connect = $databaseMock;
+        $databaseMock->getMockController()->escape = function($value) { return $value; };
+
         $this
             ->if($q = new \simpleframework\Norm\Query())
+            ->and($q->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => ''))))
+            ->and($q->setDatabase($databaseMock))
+            ->and($sql = $q->insert("test")->set(array('toto' => 'tutu'))->getSql())
             ->then
-                ->object($q)
-                ->isInstanceOf('\simpleframework\Norm\Query')
-            ->if($q = $q->insert("test"))
-            ->then
-                ->object($q)
-                ->isInstanceOf('\simpleframework\Norm\Query')
-            ->if($target = $q->getTarget())
-            ->then
-                ->string($target)
-                ->isIdenticalTo('test')
-            ->if($type = $q->getType())
-            ->then
-                ->string($type)
-                ->isIdenticalTo($q::TYPE_INSERT);
+                ->string($sql)
+                ->isIdenticalTo('INSERT INTO test (toto) VALUES (\'tutu\')');
 
     }
 
@@ -703,7 +697,7 @@ class Query extends atoum\test
                     $q->execute();
                 })
                 ->hasMessage('Query is empty')
-            ->if($q->set(array(':id' => 3)))
+            ->if($q->set(array('id' => 3)))
             ->and($result = $q->execute())
             ->then
                 ->variable($result)
@@ -743,7 +737,7 @@ class Query extends atoum\test
                     $q->execute();
                 })
                 ->hasMessage('Query is empty')
-            ->if($q->set(array(':id' => 3)))
+            ->if($q->set(array('id' => 3)))
             ->and($result = $q->execute())
             ->then
                 ->variable($result)
@@ -988,7 +982,6 @@ class Query extends atoum\test
         $databaseStatementMock->getMockController()->execute = $databaseStatementMock;
         $databaseStatementMock->getMockController()->getResult = $databaseResultMock;
         $databaseResultMock->getMockController()->dataSeek = null;
-        $databaseResultMock->getMockController()->fetchArray = array(3, 'Olympique de Marseille', 'OM');
 
         $databaseResultMock->getMockController()->fetchFields = function() { return null; };
 
@@ -1006,30 +999,8 @@ class Query extends atoum\test
                 ->boolean($isValid)
                 ->isIdenticalTo(false);
 
-        $databaseResultMock->getMockController()->fetchFields = function() {
-            $fields = array();
 
-            $stdClass = new \stdClass();
-            $stdClass->name    = 'tea_id';
-            $stdClass->orgname = 'tea_id';
-            $stdClass->table   = 'T_TEAM_TEA';
-            $fields[] = $stdClass;
-
-            $stdClass = new \stdClass();
-            $stdClass->name    = 'tea_name';
-            $stdClass->orgname = 'tea_name';
-            $stdClass->table   = 'T_TEAM_TEA';
-            $fields[] = $stdClass;
-
-            $stdClass = new \stdClass();
-            $stdClass->name    = 'tea_alias';
-            $stdClass->orgname = 'tea_alias';
-            $stdClass->table   = 'T_TEAM_TEA';
-            $fields[] = $stdClass;
-
-            return $fields;
-
-        };
+        $databaseResultMock->getMockController()->fetchArray = array(3, 'Olympique de Marseille', 'OM');
 
         $this
             ->if($q = new \simpleframework\Norm\Query())

@@ -361,33 +361,35 @@ class Metadata extends atoum\test
         $stdClassTeamId = new \stdClass();
         $stdClassTeamId->name     = 'tea_id';
         $stdClassTeamId->orgname  = 'tea_id';
-        $stdClassTeamId->table    = 'teamHome';
+        $stdClassTeamId->table    = 'teamHomeId';
         $stdClassTeamId->orgtable = 'T_TEAM_TEA';
 
         $stdClassTeamName = new \stdClass();
         $stdClassTeamName->name     = 'tea_name';
         $stdClassTeamName->orgname  = 'tea_name';
-        $stdClassTeamName->table    = 'teamHome';
+        $stdClassTeamName->table    = 'teamHomeId';
         $stdClassTeamName->orgtable = 'T_TEAM_TEA';
 
         $stdClassMatchId->value   = 7;
         $stdClassMatchDate->value = '2012-12-11';
+        $stdClassTeamId->value    = 3;
 
         $stdClassTeamId->value    = 3;
         $stdClassTeamName->value  = 'Olympique de Marseille';
 
         $columns = array($stdClassMatchId, $stdClassMatchDate, $stdClassTeamId, $stdClassTeamName);
-        $targets = array('T_MATCH_MAT', 'T_TEAM_TEA teamHome');
+        $targets = array('T_MATCH_MAT', 'T_TEAM_TEA teamHomeId');
 
         $this
             ->if($metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'))
             ->and($match = new \Match())
             ->and($match->setId(7))
+            ->and($match->setTeamHomeId(3))
             ->and($match->setDate('2012-12-11'))
             ->and($team = new \Team())
             ->and($team->setId(3))
             ->and($team->setName('Olympique de Marseille'))
-            ->and($match->teamHome = $team)
+            ->and($match->setTeamHomeId($team))
             ->and($object = $metadata->mapToObjects($columns, $targets))
             ->then
                 ->object($object)
