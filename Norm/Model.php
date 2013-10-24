@@ -2,8 +2,88 @@
 
 namespace simpleframework\Norm;
 
+
+class ModelDependencyInjection
+{
+
+    protected static $_metadata = null;
+    protected static $_query = null;
+
+
+    public static function setQuery(Query $query)
+    {
+
+        self::$_query = $query;
+
+    }
+
+
+    public static function getQuery()
+    {
+
+        if (self::$_query === null) {
+            self::$_query = new Query();
+        }
+
+        return self::$_query;
+
+    }
+
+
+    public static function setMetadata(Metadata $metadata)
+    {
+
+        self::$_metadata = $metadata;
+
+    }
+
+
+    public static function getMetadata()
+    {
+
+        if (self::$_metadata === null) {
+            self::$_metadata = Metadata::getInstance();
+        }
+
+        return self::$_metadata;
+
+    }
+
+}
+
+
 class Model
 {
+
+
+    public static function __callStatic($name, $value)
+    {
+
+        $action = substr($name, 0, 5);
+
+        if ($action === 'getBy') {
+            $action = 'get';
+            $name = lcfirst(substr($name, 5));
+        } else {
+            $action = 'find';
+            $name = lcfirst(substr($name, 6));
+        }
+
+        $metadata = ModelDependencyInjection::getMetadata();
+        $table = $metadata->getTable(get_called_class());
+        $columnInfo = $metadata->getColumnByName($table, $name);
+
+        $q = ModelDependencyInjection::getQuery();
+        $q->from($table);
+        $q->where($columnInfo['key'] . ' = :value', array(':value' => $value[0]), false);
+
+        if ($action === 'get') {
+            return $q->first();
+        } else {
+            return $q;
+        }
+
+    }
 
 
     public function __call($name, $value)
@@ -19,23 +99,21 @@ class Model
         }
 
         $name = $this->_findExistingProperty($name);
-        $metadata = Metadata::getInstance();
+        $metadata = ModelDependencyInjection::getMetadata();
         $table  = $metadata->getTable(get_called_class());
-        $column = $metadata->getColumnByName($table, $name);
+        $columnInfo = $metadata->getColumnByName($table, $name);
 
-        if ($column === null) {
+        if ($columnInfo === null) {
             $type = 'auto';
         } else {
-            $type = $column['type'];
+            $type = $columnInfo['type'];
         }
 
-        $valueCasted = $this->_cast($value[0], $type);
-
         if ($action === 'set') {
-            $this->$name = $valueCasted;
+            $this->$name = $this->_cast($value[0], $type);
             return $this;
         } else {
-            return $valueCasted;
+            return $this->_cast($this->$name, $type);
         }
 
     }
@@ -65,6 +143,14 @@ class Model
     protected function _cast($value, $type)
     {
 
+        if (is_object($value) === true) {
+            return $value;
+        }
+
+        if ($value === null) {
+            return null;
+        }
+
         switch ($type) {
             case 'int':
                 return intval($value);
@@ -78,9 +164,46 @@ class Model
                 return new \Datetime($value);
                 break;
 
-            default :
+            default:
                 return $value;
                 break;
+        }
+
+    }
+
+
+    public function save()
+    {
+
+        $class    = get_called_class();
+        $metadata = ModelDependencyInjection::getMetadata();
+        $table    = $metadata->getTable($class);
+        $column   = $metadata->getPrimary($table);
+
+        $properties = get_object_vars($this);
+        $columns = array();
+
+        foreach($properties as $name => $value) {
+            if ($value != null) {
+                $columnInfo = $metadata->getColumnByName($table, $name);
+
+                if (isset($columnInfo['key']) === true) {
+                    $columns[$columnInfo['key']] = $value;
+                }
+            }
+        }
+
+        $q = ModelDependencyInjection::getQuery();
+
+        $id = $q->insert($table)
+          ->set($columns)
+          ->execute();
+
+        if (is_numeric($id) === true) {
+            $this->$column['params']['name'] = $id;
+            return true;
+        } else {
+            return false;
         }
 
     }
@@ -90,7 +213,7 @@ class Model
     {
 
         $class    = get_called_class();
-        $metadata = Metadata::getInstance();
+        $metadata = ModelDependencyInjection::getMetadata();
         $table    = $metadata->getTable($class);
         $column   = $metadata->getPrimary($table);
 
