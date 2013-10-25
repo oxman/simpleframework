@@ -220,7 +220,7 @@ class Metadata implements Adapter\Metadata
     public function mapToAnonymous($columns, $targets)
     {
 
-        $object = new \Object();
+        $object = new Model();
 
         foreach($columns as $column) {
             $object->{$column->name} = $column->value;
