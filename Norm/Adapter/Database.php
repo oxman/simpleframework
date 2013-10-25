@@ -9,6 +9,7 @@ interface Database
     public function query($sql);
     public function prepare($sql);
     public function escape($value);
+    public function error();
     public function getInsertId();
     public function getSqlState();
     public function getErrorNo();

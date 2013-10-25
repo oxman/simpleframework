@@ -19,10 +19,22 @@ class Mysqli implements \simpleframework\Norm\Adapter\Database
         $this->_connection = new \mysqli($hostname, $username, $password, $database);
 
         if (mysqli_connect_error()) {
-            die('Connect Error (' . mysqli_connect_errno() . ') '. mysqli_connect_error());
+            trigger_error('Connect Error (' . mysqli_connect_errno() . ') '. mysqli_connect_error(), E_USER_ERROR);
         }
 
         return $this;
+
+    }
+
+
+    public function error()
+    {
+
+        if ($this->_connection->error === '') {
+            return false;
+        } else {
+            return $this->_connection->error;
+        }
 
     }
 
