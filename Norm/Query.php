@@ -476,7 +476,7 @@ class Query implements \Iterator, \Countable, Observer\Subject
                 }
 
                 if (count($this->_query['select']) === 0) {
-                    $sql = ' * ' . $sql;
+                    $sql = ' *' . $sql;
                 } else {
                     $sql = ' ' . implode(', ', $this->_query['select']) . $sql;
                 }
