@@ -90,13 +90,14 @@ class Model
     {
 
         $action = substr($name, 0, 3);
-        $name   = lcfirst(substr($name, 3));
 
         // if the method doesn't start with set or get, we remap the call in get
         // feature for Twig
         if ($action !== 'set' && $action !== 'get') {
             return $this->{'get' . ucfirst($name)}();
         }
+
+        $name   = lcfirst(substr($name, 3));
 
         $name = $this->_findExistingProperty($name);
         $metadata = ModelDependencyInjection::getMetadata();
