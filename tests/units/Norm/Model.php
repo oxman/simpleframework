@@ -30,8 +30,7 @@ class Model extends atoum\test
     public function testToString()
     {
 
-        $metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
-        \simpleframework\Norm\ModelDependencyInjection::setMetadata($metadata);
+        \Match::setMetadata(\simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'));
 
         $this
             ->if($match = new \Match())
@@ -47,8 +46,7 @@ class Model extends atoum\test
     public function testMagicCall()
     {
 
-        $metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
-        \simpleframework\Norm\ModelDependencyInjection::setMetadata($metadata);
+        \Match::setMetadata(\simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'));
 
         $this
             ->if($match = new \Match())
@@ -66,15 +64,21 @@ class Model extends atoum\test
 
         $this->mockGenerator->generate('\simpleframework\Norm\Query', '\QueryMock');
         $queryMock = new \QueryMock\Query();
-        $metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
-
-        \simpleframework\Norm\ModelDependencyInjection::setMetadata($metadata);
-        \simpleframework\Norm\ModelDependencyInjection::setQuery($queryMock);
-
         $queryMock->getMockController()->first = function() {
             $match = new \Match;
             return $match;
         };
+
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\Database', '\DatabaseMock');
+        $databaseMock = new \DatabaseMock\Database();
+        $databaseMock->getMockController()->connect = $databaseMock;
+        $databaseMock->getMockController()->escape = function($value) { return $value; };
+
+        $queryMock->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => '')));
+        $queryMock->setDatabase($databaseMock);
+
+        \Match::setMetadata(\simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'));
+        \Match::staticSetQuery($queryMock);
 
         $this
             ->if($match = \Match::getById(1))
@@ -90,14 +94,20 @@ class Model extends atoum\test
 
         $this->mockGenerator->generate('\simpleframework\Norm\Query', '\QueryMock');
         $queryMock = new \QueryMock\Query();
-        $metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
-
-        \simpleframework\Norm\ModelDependencyInjection::setMetadata($metadata);
-        \simpleframework\Norm\ModelDependencyInjection::setQuery($queryMock);
-
         $queryMock->getMockController()->first = function() {
             return array(3, 3, 3);
         };
+
+        $this->mockGenerator->generate('\simpleframework\Norm\Adapter\Database', '\DatabaseMock');
+        $databaseMock = new \DatabaseMock\Database();
+        $databaseMock->getMockController()->connect = $databaseMock;
+        $databaseMock->getMockController()->escape = function($value) { return $value; };
+
+        $queryMock->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => '')));
+        $queryMock->setDatabase($databaseMock);
+
+        \Team::setMetadata(\simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'));
+        \Team::setStaticQuery($queryMock);
 
         $this
             ->if($team = \Team::findByName("Test"))
@@ -111,7 +121,6 @@ class Model extends atoum\test
     public function testSave()
     {
 
-        $metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
         $this->mockGenerator->generate('\simpleframework\Norm\Query', '\QueryMock');
         $queryMock = new \QueryMock\Query();
         $queryMock->getMockController()->execute = 3;
@@ -124,17 +133,17 @@ class Model extends atoum\test
         $queryMock->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => '')));
         $queryMock->setDatabase($databaseMock);
 
-        \simpleframework\Norm\ModelDependencyInjection::setMetadata($metadata);
-        \simpleframework\Norm\ModelDependencyInjection::setQuery($queryMock);
+        \Team::setMetadata(\simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'));
 
         $this
             ->if($team = new \Team)
+            ->and($team->setQuery($queryMock))
             ->and($team->setName('Bouh'))
             ->and($result = $team->save())
             ->and($sql = $queryMock->getSql())
             ->then
                 ->string($sql)
-                ->isIdenticalTo('INSERT INTO T_TEAM_TEA (tea_name) VALUES (\'Bouh\')')
+                ->isIdenticalTo('INSERT INTO `T_TEAM_TEA` (tea_name) VALUES (\'Bouh\')')
             ->then
                 ->boolean($result)
                 ->isIdenticalTo(true)
@@ -149,7 +158,6 @@ class Model extends atoum\test
     public function testUpdate()
     {
 
-        $metadata = \simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php');
         $this->mockGenerator->generate('\simpleframework\Norm\Query', '\QueryMock');
         $queryMock = new \QueryMock\Query();
         $queryMock->getMockController()->execute = 3;
@@ -162,18 +170,18 @@ class Model extends atoum\test
         $queryMock->setConfig(array('default' => array('hostname' => '', 'username' => '', 'password' => '', 'database' => '')));
         $queryMock->setDatabase($databaseMock);
 
-        \simpleframework\Norm\ModelDependencyInjection::setMetadata($metadata);
-        \simpleframework\Norm\ModelDependencyInjection::setQuery($queryMock);
+        \Team::setMetadata(\simpleframework\Norm\Metadata::getInstance('/vendor/simpleframework/tests/model/*.php'));
 
         $this
             ->if($team = new \Team) // in standard code use Team::getById(1)
+            ->and($team->setQuery($queryMock))
             ->and($team->setId(4))
             ->and($team->setName('Bouh'))
             ->and($result = $team->update())
             ->and($sql = $queryMock->getSql())
             ->then
                 ->string($sql)
-                ->isIdenticalTo('UPDATE T_TEAM_TEA SET tea_name = \'Bouh\' WHERE tea_id = 4')
+                ->isIdenticalTo('UPDATE `T_TEAM_TEA` SET tea_name = \'Bouh\' WHERE (tea_id = :tea_id)')
             ->then
                 ->boolean($result)
                 ->isIdenticalTo(true);
