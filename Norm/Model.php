@@ -3,29 +3,18 @@
 namespace simpleframework\Norm;
 
 
-class ModelDependencyInjection
+class Model
 {
 
-    protected static $_metadata = null;
-    protected static $_query = null;
+
+    private static $_metadata;
+    private static $_staticQuery;
 
 
-    public static function setQuery(Query $query)
+    protected static function _getQuery()
     {
 
-        self::$_query = $query;
-
-    }
-
-
-    public static function getQuery()
-    {
-
-        if (self::$_query === null) {
-            self::$_query = new Query();
-        }
-
-        return self::$_query;
+        return new Query();
 
     }
 
@@ -41,19 +30,53 @@ class ModelDependencyInjection
     public static function getMetadata()
     {
 
-        if (self::$_metadata === null) {
-            self::$_metadata = Metadata::getInstance();
+        if (isset(self::$_metadata) === false) {
+            return Metadata::getInstance();
+        } else {
+            return self::$_metadata;
         }
-
-        return self::$_metadata;
 
     }
 
-}
+
+    public static function staticSetQuery(Query $query)
+    {
+
+        self::$_staticQuery = $query;
+
+    }
 
 
-class Model
-{
+    public static function staticGetQuery()
+    {
+
+        if (isset(self::$_staticQuery) === false) {
+            return new Query();
+        } else {
+            return self::$_staticQuery;
+        }
+
+    }
+
+
+    public function setQuery(Query $query)
+    {
+
+        $this->query = $query;
+
+    }
+
+
+    public function getQuery()
+    {
+
+        if (isset($this->query) === false) {
+            return new Query();
+        } else {
+            return $this->query;
+        }
+
+    }
 
 
     public static function __callStatic($name, $value)
@@ -69,13 +92,24 @@ class Model
             $name = lcfirst(substr($name, 6));
         }
 
-        $metadata = ModelDependencyInjection::getMetadata();
-        $table = $metadata->getTable(get_called_class());
-        $columnInfo = $metadata->getColumnByName($table, $name);
+        $names = preg_split('/And(?<![A-Z])/', $name);
 
-        $q = ModelDependencyInjection::getQuery();
+        $metadata = self::getMetadata();
+        $table = $metadata->getTable(get_called_class());
+
+        $q = self::staticGetQuery();
         $q->from($table);
-        $q->where($columnInfo['key'] . ' = :value', array(':value' => $value[0]), false);
+
+        $conditions = array();
+        $values = array();
+
+        foreach($names as $i => $name) {
+            $columnInfo = $metadata->getColumnByName($table, lcfirst($name));
+            $conditions[] = $columnInfo['key'] . ' = :' . $columnInfo['key'];
+            $values = array_merge($values, array(':' . $columnInfo['key'] => $value[$i]));
+        }
+
+        $q->where(implode(' AND ', $conditions), $values, false);
 
         if ($action === 'get') {
             return $q->first();
@@ -100,7 +134,7 @@ class Model
         $name   = lcfirst(substr($name, 3));
 
         $name = $this->_findExistingProperty($name);
-        $metadata = ModelDependencyInjection::getMetadata();
+        $metadata = self::getMetadata();
         $table  = $metadata->getTable(get_called_class());
         $columnInfo = $metadata->getColumnByName($table, $name);
 
@@ -193,7 +227,7 @@ class Model
     {
 
         $class    = get_called_class();
-        $metadata = ModelDependencyInjection::getMetadata();
+        $metadata = self::getMetadata();
         $table    = $metadata->getTable($class);
         $column   = $metadata->getPrimary($table);
 
@@ -210,13 +244,15 @@ class Model
             }
         }
 
-        $q = ModelDependencyInjection::getQuery();
+        $q = $this->getQuery();
 
         if ($mode === 'insert') {
             $id = $q->insert($table)
                     ->set($columns)
                     ->execute();
         } else {
+            unset($columns[$column['key']]);
+
             $id = $q->update($table)
                     ->set($columns)
                     ->where($column['key'] . ' = :' . $column['key'], array(':' . $column['key'] => $this->$column['params']['name']))
@@ -239,7 +275,7 @@ class Model
     {
 
         $class    = get_called_class();
-        $metadata = ModelDependencyInjection::getMetadata();
+        $metadata = self::getMetadata();
         $table    = $metadata->getTable($class);
         $column   = $metadata->getPrimary($table);
 
