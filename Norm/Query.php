@@ -41,6 +41,7 @@ class Query implements \Iterator, \Countable, Observer\Subject
     protected $_stmtResult   = null;
     protected $_stmtPosition = null;
     protected $_stmtRow      = null;
+    protected $_anonymous    = false;
     protected $_observers    = array();
 
 
@@ -94,7 +95,7 @@ class Query implements \Iterator, \Countable, Observer\Subject
     protected function _connect()
     {
 
-        if (isset(self::$_connections[$this->_connection]) === false) {
+        if (array_key_exists($this->_connection, self::$_connections) === false) {
             $config = $this->getConfig();
 
             $database = $this->getDatabase()->connect(
@@ -166,6 +167,14 @@ class Query implements \Iterator, \Countable, Observer\Subject
         }
 
         return $this->_database;
+
+    }
+
+
+    public function setAnonymous($status)
+    {
+
+        $this->_anonymous = $status;
 
     }
 
@@ -364,7 +373,7 @@ class Query implements \Iterator, \Countable, Observer\Subject
 
         switch ($this->_query['type']) {
             case self::TYPE_DELETE:
-                $sql = 'DELETE FROM ' . $this->_query['target'];
+                $sql = 'DELETE FROM ' . $this->_escapeField($this->_query['target']);
 
                 if (count($this->_query['where']) > 0) {
                     $sql .= ' WHERE (' . implode(') AND (', $this->_query['where']) . ')';
@@ -373,7 +382,7 @@ class Query implements \Iterator, \Countable, Observer\Subject
             break;
 
             case self::TYPE_INSERT:
-                $sql = 'INSERT INTO ' . $this->_query['target'];
+                $sql = 'INSERT INTO ' . $this->_escapeField($this->_query['target']);
 
                 if (count($this->_query['set']) === 0) {
                     return null;
@@ -398,7 +407,7 @@ class Query implements \Iterator, \Countable, Observer\Subject
             break;
 
             case self::TYPE_UPDATE:
-                $sql = 'UPDATE ' . $this->_query['target'];
+                $sql = 'UPDATE ' . $this->_escapeField($this->_query['target']);
 
                 if (count($this->_query['set']) === 0) {
                     return null;
@@ -427,23 +436,22 @@ class Query implements \Iterator, \Countable, Observer\Subject
             case self::TYPE_SELECT:
                 $targets = array();
 
-                $sql = ' FROM ';
-                $sql .= $this->_query['target'];
+                $sql = ' FROM ' . $this->_escapeField($this->_query['target']);
 
                 $this->_targets[] = $this->_query['target'];
 
                 foreach ($this->_query['join']['inner'] as $table => $condition) {
-                    $sql .= ' INNER JOIN ' . $table . ' ON (' . $condition . ')';
+                    $sql .= ' INNER JOIN ' . $this->_escapeField($table) . ' ON (' . $condition . ')';
                     $this->_targets[] = $table;
                 }
 
                 foreach ($this->_query['join']['left'] as $table => $condition) {
-                    $sql .= ' LEFT JOIN ' . $table . ' ON (' . $condition . ')';
+                    $sql .= ' LEFT JOIN ' . $this->_escapeField($table) . ' ON (' . $condition . ')';
                     $this->_targets[] = $table;
                 }
 
                 foreach ($this->_query['join']['right'] as $table => $condition) {
-                    $sql .= ' RIGHT JOIN ' . $table . ' ON (' . $condition . ')';
+                    $sql .= ' RIGHT JOIN ' . $this->_escapeField($table) . ' ON (' . $condition . ')';
                     $this->_targets[] = $table;
                 }
 
@@ -508,9 +516,26 @@ class Query implements \Iterator, \Countable, Observer\Subject
 
         $data = $this->_processRow($result);
 
-        $object = $this->getMetadata()->mapToObjects($data, $this->_targets);
+        if ($this->_anonymous === true) {
+            $object = $this->getMetadata()->mapToAnonymous($data, $this->_targets);
+        } else {
+            $object = $this->getMetadata()->mapToObjects($data, $this->_targets);
+        }
 
         return $object;
+
+    }
+
+
+    protected function _escapeField($field)
+    {
+
+        if (strpos($field, ' ') !== false) {
+            list($cleanField, $rest) = explode(' ', $field, 2);
+            return '`' . $cleanField . '` ' . $rest;
+        } else {
+            return '`' . $field . '`';
+        }
 
     }
 
@@ -615,6 +640,10 @@ class Query implements \Iterator, \Countable, Observer\Subject
         $connection = self::$_connections[$this->_connection];
         $this->_stmtData = $connection->prepare($sql);
 
+        if ($connection->error() !== false) {
+            trigger_error($connection->error(), E_USER_ERROR);
+        }
+
         if ($types !== "") {
             $this->_stmtData->bindParams($values);
         }
@@ -684,6 +713,7 @@ class Query implements \Iterator, \Countable, Observer\Subject
     {
 
         if ($this->_stmtResult->fetchArray() !== null) {
+            $this->_stmtResult->dataSeek($this->_stmtPosition);
             return true;
         }
 
@@ -704,7 +734,11 @@ class Query implements \Iterator, \Countable, Observer\Subject
     {
 
         $data = $this->_processRow($this->_stmtResult);
-        $object = $this->getMetadata()->mapToObjects($data, $this->_targets);
+        if ($this->_anonymous === true) {
+            $object = $this->getMetadata()->mapToAnonymous($data, $this->_targets);
+        } else {
+            $object = $this->getMetadata()->mapToObjects($data, $this->_targets);
+        }
 
         return $object;
 

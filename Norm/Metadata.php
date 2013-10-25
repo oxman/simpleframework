@@ -217,6 +217,20 @@ class Metadata implements Adapter\Metadata
     }
 
 
+    public function mapToAnonymous($columns, $targets)
+    {
+
+        $object = new \Object();
+
+        foreach($columns as $column) {
+            $object->{$column->name} = $column->value;
+        }
+
+        return $object;
+
+    }
+
+
     public function mapToObjects($columns, $targets)
     {
         $mainTarget = array_shift($targets);
