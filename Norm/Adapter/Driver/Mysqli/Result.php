@@ -16,7 +16,6 @@ class Result implements \simpleframework\Norm\Adapter\DatabaseResult
     {
 
         $this->_result = $result;
-        $this->_result->rand = rand(0,50);
 
     }
 
