@@ -16,6 +16,8 @@ class Query implements \Iterator, \Countable, Observer\Subject
     const TYPE_UPDATE = 'update';
 
     protected static $_connections = array();
+    protected static $_observers   = array();
+
     public $_query = array(
         'select' => array(),
         'where'  => array(),
@@ -42,7 +44,6 @@ class Query implements \Iterator, \Countable, Observer\Subject
     protected $_stmtPosition = null;
     protected $_stmtRow      = null;
     protected $_anonymous    = false;
-    protected $_observers    = array();
 
 
     /** Observer **/
@@ -50,24 +51,24 @@ class Query implements \Iterator, \Countable, Observer\Subject
     public function getObservers()
     {
 
-        return $this->_observers;
+        return self::$_observers;
 
     }
 
 
-    public function attach(Observer\Observer $observer)
+    public static function attach(Observer\Observer $observer)
     {
 
-        $this->_observers[] = $observer;
+        self::$_observers[] = $observer;
 
     }
 
 
-    public function detach(Observer\Observer $observer)
+    public static function detach(Observer\Observer $observer)
     {
 
-        $key = array_search($observer, $this->_observers);
-        unset($this->_observers[$key]);
+        $key = array_search($observer, self::$_observers);
+        unset(self::$_observers[$key]);
 
     }
 
@@ -75,7 +76,7 @@ class Query implements \Iterator, \Countable, Observer\Subject
     public function notify($data)
     {
 
-        foreach($this->_observers as $observer) {
+        foreach(self::$_observers as $observer) {
             $observer->update($data);
         }
 
@@ -654,16 +655,21 @@ class Query implements \Iterator, \Countable, Observer\Subject
             $this->_stmtReturn = $this->_stmtData->execute();
         }
 
-        $this->notify(array(
-            'duration' => microtime(true) - $start,
+
+        $notifyData = array(
+            'duration' => round(microtime(true) - $start, 3),
             'sql'      => $sql,
-            'params'   => $this->getValues(),
-            'error'    => array(
-                'state'   => $connection->getSqlstate(),
-                'code'    => $connection->getErrorNo(),
-                'message' => $connection->getErrorMessage()
-            )
-        ));
+            'params'   => $this->getValues());
+
+        if ($connection->getErrorNo() != 0) {
+            $notifyData['error'] = array(
+                    'state'   => $connection->getSqlstate(),
+                    'code'    => $connection->getErrorNo(),
+                    'message' => $connection->getErrorMessage()
+                );
+        }
+
+        $this->notify($notifyData);
 
         if ($this->_stmtData == false) {
             throw new \Exception($connection->getErrorMessage(), $connection->getErrorNo());
@@ -784,16 +790,20 @@ class Query implements \Iterator, \Countable, Observer\Subject
         $start = microtime(true);
         $stmt->execute();
 
-        $this->notify(array(
-            'duration' => microtime(true) - $start,
+        $notifyData = array(
+            'duration' => round(microtime(true) - $start, 3),
             'sql'      => $sql,
-            'params'   => $this->getValues(),
-            'error'    => array(
-                'state'   => $connection->getSqlstate(),
-                'code'    => $connection->getErrorNo(),
-                'message' => $connection->getErrorMessage()
-            )
-        ));
+            'params'   => $this->getValues());
+
+        if ($connection->getErrorNo() != 0) {
+            $notifyData['error'] = array(
+                    'state'   => $connection->getSqlstate(),
+                    'code'    => $connection->getErrorNo(),
+                    'message' => $connection->getErrorMessage()
+                );
+        }
+
+        $this->notify($notifyData);
 
         $result = $stmt->getResult();
         $stmt->close();

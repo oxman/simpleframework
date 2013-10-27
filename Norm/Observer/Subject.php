@@ -5,8 +5,8 @@ namespace simpleframework\Norm\Observer;
 interface Subject
 {
 
-    public function attach(Observer $observer);
-    public function detach(Observer $observer);
+    public static function attach(Observer $observer);
+    public static function detach(Observer $observer);
     public function notify($data);
 
 }
