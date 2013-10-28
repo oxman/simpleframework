@@ -1,6 +1,6 @@
 <?php
 
-namespace simpleframework\Norm\Observer;
+namespace simpleframework\Observer;
 
 interface Subject
 {

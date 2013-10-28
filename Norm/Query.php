@@ -4,10 +4,10 @@ namespace simpleframework\Norm;
 
 require_once ROOT . '/vendor/simpleframework/Norm/Adapter/Driver/Mysqli/Mysqli.php';
 require_once ROOT . '/vendor/simpleframework/Norm/Metadata.php';
-require_once ROOT . '/vendor/simpleframework/Norm/Observer/Subject.php';
+require_once ROOT . '/vendor/simpleframework/Observer/Subject.php';
 
 
-class Query implements \Iterator, \Countable, Observer\Subject
+class Query implements \Iterator, \Countable, \simpleframework\Observer\Subject
 {
 
     const TYPE_SELECT = 'select';
@@ -56,7 +56,7 @@ class Query implements \Iterator, \Countable, Observer\Subject
     }
 
 
-    public static function attach(Observer\Observer $observer)
+    public static function attach(\simpleframework\Observer\Observer $observer)
     {
 
         self::$_observers[] = $observer;
@@ -64,7 +64,7 @@ class Query implements \Iterator, \Countable, Observer\Subject
     }
 
 
-    public static function detach(Observer\Observer $observer)
+    public static function detach(\simpleframework\Observer\Observer $observer)
     {
 
         $key = array_search($observer, self::$_observers);

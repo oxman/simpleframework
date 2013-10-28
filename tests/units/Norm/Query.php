@@ -5,7 +5,7 @@ namespace simpleframework\Norm\tests\units;
 define('ROOT', realpath(getcwd() . DIRECTORY_SEPARATOR . ".."));
 
 require_once ROOT . '/vendor/mageekguy.atoum.phar';
-require_once ROOT . '/vendor/simpleframework/Norm/Observer/Observer.php';
+require_once ROOT . '/vendor/simpleframework/Observer/Observer.php';
 require_once ROOT . '/vendor/simpleframework/Norm/Adapter/Driver/Mysqli/Mysqli.php';
 require_once ROOT . '/vendor/simpleframework/Norm/Query.php';
 require_once ROOT . '/vendor/simpleframework/Norm/Model.php';
@@ -620,7 +620,7 @@ class Query extends atoum\test
     public function testAttachDetach()
     {
 
-        $this->mockGenerator->generate('\simpleframework\Norm\Observer\Observer', '\ObserverMock');
+        $this->mockGenerator->generate('\simpleframework\Observer\Observer', '\ObserverMock');
         $observerMock = new \ObserverMock\Observer();
         $observerMock->getMockController()->update = array();
 
@@ -644,7 +644,7 @@ class Query extends atoum\test
     public function testNotify()
     {
 
-        $this->mockGenerator->generate('\simpleframework\Norm\Observer\Observer', '\ObserverMock');
+        $this->mockGenerator->generate('\simpleframework\Observer\Observer', '\ObserverMock');
         $observerMock = new \ObserverMock\Observer();
 
         $this

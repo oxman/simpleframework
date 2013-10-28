@@ -5,7 +5,7 @@ namespace simpleframework\Norm\tests\units;
 define('ROOT', realpath(getcwd() . DIRECTORY_SEPARATOR . ".."));
 
 require_once ROOT . '/vendor/mageekguy.atoum.phar';
-require_once ROOT . '/vendor/simpleframework/Norm/Observer/Observer.php';
+require_once ROOT . '/vendor/simpleframework/Observer/Observer.php';
 require_once ROOT . '/vendor/simpleframework/Norm/Adapter/Driver/Mysqli/Mysqli.php';
 require_once ROOT . '/vendor/simpleframework/Norm/Query.php';
 require_once ROOT . '/vendor/simpleframework/Norm/Model.php';
