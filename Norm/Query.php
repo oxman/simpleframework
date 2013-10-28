@@ -551,6 +551,10 @@ class Query implements \Iterator, \Countable, \simpleframework\Observer\Subject
             return null;
         }
 
+        if ($data === null) {
+            return null;
+        }
+
         foreach($fields as $i => &$field) {
             $field->value = $data[$i];
         }
