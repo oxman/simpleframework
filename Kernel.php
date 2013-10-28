@@ -2,16 +2,55 @@
 
 namespace simpleframework;
 
-class Kernel
-{
+require_once ROOT . "/vendor/simpleframework/Observer/Subject.php";
 
+class Kernel implements Observer\Subject
+{
 
     protected $_routes;
     protected $_controller;
     protected $_action;
     protected static $_config = array();
     protected static $_currentRoute;
+    protected static $_observers = array();
     public static $currentCall = array();
+
+
+    /** Observer **/
+
+    public function getObservers()
+    {
+
+        return self::$_observers;
+
+    }
+
+
+    public static function attach(\simpleframework\Observer\Observer $observer)
+    {
+
+        self::$_observers[] = $observer;
+
+    }
+
+
+    public static function detach(\simpleframework\Observer\Observer $observer)
+    {
+
+        $key = array_search($observer, self::$_observers);
+        unset(self::$_observers[$key]);
+
+    }
+
+
+    public function notify($data)
+    {
+
+        foreach(self::$_observers as $observer) {
+            $observer->update($data);
+        }
+
+    }
 
 
     protected function _loadEnv($env='prod')
