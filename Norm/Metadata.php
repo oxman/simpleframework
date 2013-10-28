@@ -271,14 +271,15 @@ class Metadata implements Adapter\Metadata
 
         foreach($columns as $column) {
 
-            if ($alias !== $column->table) {
+            if ($alias !== $column->table && $column->table != '') {
                 continue;
             }
 
             $columnInfo = $this->getColumnByKey($table, $column->orgname);
 
-            // not a column of the model
-            if ($columnInfo === null) {
+            if ($column->orgname === '') { // dynamic column (like NOW() as bouh)
+                $method = 'set' . ucfirst($column->name);
+            } else if ($columnInfo === null) { // not a column of the model
                 $method = 'set' . ucfirst($column->orgname);
             } else {
                 $method = 'set' . ucfirst(substr($columnInfo['name'], 1));
