@@ -236,7 +236,7 @@ class Metadata implements Adapter\Metadata
         $mainTarget = array_shift($targets);
 
         list($table, $alias) = Query::parseTableName($mainTarget);
-        $object = $this->mapToObject($columns, $table, $alias);
+        $object = $this->mapToObject($columns, $table, $alias, true);
 
         if ($object === null) {
             return null;
@@ -254,7 +254,7 @@ class Metadata implements Adapter\Metadata
     }
 
 
-    public function mapToObject($columns, $table, $alias)
+    public function mapToObject($columns, $table, $alias, $mainObject=false)
     {
 
         $class = self::getClass($table);
@@ -278,14 +278,18 @@ class Metadata implements Adapter\Metadata
             $columnInfo = $this->getColumnByKey($table, $column->orgname);
 
             if ($column->orgname === '') { // dynamic column (like NOW() as bouh)
-                $method = 'set' . ucfirst($column->name);
+                if ($mainObject === true) {
+                    $method = 'set' . ucfirst($column->name);
+                }
             } else if ($columnInfo === null) { // not a column of the model
                 $method = 'set' . ucfirst($column->orgname);
             } else {
                 $method = 'set' . ucfirst(substr($columnInfo['name'], 1));
             }
 
-            $object->$method($column->value);
+            if (isset($method) === true) {
+                $object->$method($column->value);
+            }
 
         }
 
