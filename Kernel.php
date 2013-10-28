@@ -257,7 +257,7 @@ class Kernel implements Observer\Subject
 
             if (($domain === false || isset($_SERVER['HTTP_HOST']) === true
                 && self::$_config['domain'][$domain] === $_SERVER['HTTP_HOST'])
-                && preg_match($patternRoute, $_SERVER['REQUEST_URI'], $params) > 0) {
+                && preg_match($patternRoute, $_SERVER['REDIRECT_URL'], $params) > 0) {
                 break;
             }
 
