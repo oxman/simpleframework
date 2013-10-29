@@ -98,10 +98,10 @@ class Kernel implements Observer\Subject
     public function start($env)
     {
 
-        require_once ROOT . '/vendor/simpleframework/Notification.php';
-
-        Notification::call('beginPage');
         $this->init($env);
+
+        self::$currentCall['env'] = $env;
+        self::$currentCall['type'] = 'web';
 
         $this->_dispatch();
         $class = $this->_call(self::$currentCall['controller'],
@@ -117,16 +117,15 @@ class Kernel implements Observer\Subject
     public function startCli($env, $controller, $action, $params, $dir)
     {
 
-        require_once ROOT . '/vendor/simpleframework/Notification.php';
-
         self::$currentCall = array(
+            'env'        => $env,
+            'type'       => 'cli',
             'controller' => $controller,
             'action'     => $action,
             'params'     => $params,
             'dir'        => $dir
         );
 
-        Notification::call('beginCli');
         $this->init($env);
         $class = $this->_call(self::$currentCall['controller'],
                               self::$currentCall['action'],
@@ -255,9 +254,11 @@ class Kernel implements Observer\Subject
             $patternRoute = preg_replace('#\{([^}]+?)\}#', "(?P<$1>[^/]+)", $patternRoute);
             $patternRoute = '#^' . $patternRoute . '/?$#';
 
+            $url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
             if (($domain === false || isset($_SERVER['HTTP_HOST']) === true
                 && self::$_config['domain'][$domain] === $_SERVER['HTTP_HOST'])
-                && preg_match($patternRoute, $_SERVER['REDIRECT_URL'], $params) > 0) {
+                && preg_match($patternRoute, $url, $params) > 0) {
                 break;
             }
 
@@ -297,12 +298,12 @@ class Kernel implements Observer\Subject
         $this->_controller = $controller;
         $this->_action     = $action;
 
-        self::$currentCall = array(
+        self::$currentCall = array_merge(self::$currentCall, array(
             'controller' => $controller,
             'action'     => $action,
             'params'     => $params,
             'dir'        => $dir
-            );
+            ));
 
     }
 
