@@ -60,7 +60,7 @@ class Query extends atoum\test
             ->and($sql = $q->getSql())
             ->then
                 ->string($sql)
-                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS * FROM `test`');
+                ->isIdenticalTo("SELECT SQL_CALC_FOUND_ROWS *\n FROM `test`\n");
 
     }
 
@@ -105,7 +105,7 @@ class Query extends atoum\test
             ->and($sql = $q->update("test")->set(array('toto' => 'tutu'))->getSql())
             ->then
                 ->string($sql)
-                ->isIdenticalTo('UPDATE `test` SET toto = \'tutu\'');
+                ->isIdenticalTo("UPDATE `test`\n SET toto = 'tutu'\n");
 
     }
 
@@ -126,7 +126,7 @@ class Query extends atoum\test
             ->and($sql = $q->insert("test")->set(array('toto' => 'tutu'))->getSql())
             ->then
                 ->string($sql)
-                ->isIdenticalTo('INSERT INTO `test` (toto) VALUES (\'tutu\')');
+                ->isIdenticalTo("INSERT INTO `test`\n (toto) VALUES ('tutu')");
 
     }
 
@@ -223,7 +223,7 @@ class Query extends atoum\test
             ->if($sql = $q->getSql())
             ->then
                 ->string($sql)
-                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM `T_MATCH_MAT` WHERE (:id)');
+                ->isIdenticalTo("SELECT SQL_CALC_FOUND_ROWS bouh\n FROM `T_MATCH_MAT`\n WHERE (:id)\n");
 
     }
 
@@ -243,7 +243,7 @@ class Query extends atoum\test
             ->if($sql = $q->getSql())
             ->then
                 ->string($sql)
-                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM `T_MATCH_MAT` WHERE (:id)');
+                ->isIdenticalTo("SELECT SQL_CALC_FOUND_ROWS bouh\n FROM `T_MATCH_MAT`\n WHERE (:id)\n");
 
     }
 
@@ -263,7 +263,7 @@ class Query extends atoum\test
             ->if($sql = $q->where(':truc', 'choum', false)->getSql())
             ->then
                 ->string($sql)
-                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM `T_MATCH_MAT` WHERE (:truc)');
+                ->isIdenticalTo("SELECT SQL_CALC_FOUND_ROWS bouh\n FROM `T_MATCH_MAT`\n WHERE (:truc)\n");
 
     }
 
@@ -301,12 +301,12 @@ class Query extends atoum\test
             ->and($sql = $q->getSql())
             ->then
                 ->string($sql)
-                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM `T_MATCH_MAT` GROUP BY zoom')
+                ->isIdenticalTo("SELECT SQL_CALC_FOUND_ROWS bouh\n FROM `T_MATCH_MAT`\n GROUP BY zoom\n")
             ->if($q = $q->group('ziom', false))
             ->and($sql = $q->getSql())
             ->then
                 ->string($sql)
-                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM `T_MATCH_MAT` GROUP BY ziom');
+                ->isIdenticalTo("SELECT SQL_CALC_FOUND_ROWS bouh\n FROM `T_MATCH_MAT`\n GROUP BY ziom\n");
 
     }
 
@@ -323,12 +323,12 @@ class Query extends atoum\test
             ->and($sql = $q->getSql())
             ->then
                 ->string($sql)
-                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM `T_MATCH_MAT` HAVING (zoom)')
+                ->isIdenticalTo("SELECT SQL_CALC_FOUND_ROWS bouh\n FROM `T_MATCH_MAT`\n HAVING (zoom)\n")
             ->if($q = $q->having('ziom', false))
             ->and($sql = $q->getSql())
             ->then
                 ->string($sql)
-                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM `T_MATCH_MAT` HAVING (ziom)');
+                ->isIdenticalTo("SELECT SQL_CALC_FOUND_ROWS bouh\n FROM `T_MATCH_MAT`\n HAVING (ziom)\n");
 
     }
 
@@ -345,7 +345,7 @@ class Query extends atoum\test
             ->and($sql = $q->getSql())
             ->then
                 ->string($sql)
-                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM `T_MATCH_MAT` LIMIT 3 OFFSET 8');
+                ->isIdenticalTo("SELECT SQL_CALC_FOUND_ROWS bouh\n FROM `T_MATCH_MAT`\n LIMIT 3 OFFSET 8\n");
 
     }
 
@@ -362,12 +362,12 @@ class Query extends atoum\test
             ->and($sql = $q->getSql())
             ->then
                 ->string($sql)
-                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM `T_MATCH_MAT` ORDER BY zoom')
+                ->isIdenticalTo("SELECT SQL_CALC_FOUND_ROWS bouh\n FROM `T_MATCH_MAT`\n ORDER BY zoom\n")
             ->if($q = $q->order('ziom', false))
             ->and($sql = $q->getSql())
             ->then
                 ->string($sql)
-                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM `T_MATCH_MAT` ORDER BY ziom');
+                ->isIdenticalTo("SELECT SQL_CALC_FOUND_ROWS bouh\n FROM `T_MATCH_MAT`\n ORDER BY ziom\n");
 
     }
 
@@ -387,7 +387,7 @@ class Query extends atoum\test
             ->if($sql = $q->getSql())
             ->then
                 ->string($sql)
-                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM `T_MATCH_MAT` m INNER JOIN `Pouf` ON (Pouf.a = m.id)');
+                ->isIdenticalTo("SELECT SQL_CALC_FOUND_ROWS bouh\n FROM `T_MATCH_MAT` m\n INNER JOIN `Pouf` ON (Pouf.a = m.id)\n");
 
     }
 
@@ -407,7 +407,7 @@ class Query extends atoum\test
             ->if($sql = $q->getSql())
             ->then
                 ->string($sql)
-                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM `T_MATCH_MAT` m LEFT JOIN `Pouf` ON (Pouf.a = m.id)');
+                ->isIdenticalTo("SELECT SQL_CALC_FOUND_ROWS bouh\n FROM `T_MATCH_MAT` m\n LEFT JOIN `Pouf` ON (Pouf.a = m.id)\n");
 
     }
 
@@ -427,7 +427,7 @@ class Query extends atoum\test
             ->if($sql = $q->getSql())
             ->then
                 ->string($sql)
-                ->isIdenticalTo('SELECT SQL_CALC_FOUND_ROWS bouh FROM `T_MATCH_MAT` m RIGHT JOIN `Pouf` ON (Pouf.a = m.id)');
+                ->isIdenticalTo("SELECT SQL_CALC_FOUND_ROWS bouh\n FROM `T_MATCH_MAT` m\n RIGHT JOIN `Pouf` ON (Pouf.a = m.id)\n");
 
     }
 
@@ -447,7 +447,7 @@ class Query extends atoum\test
             ->if($sql = $q->getSql(true))
             ->then
                 ->string($sql)
-                ->isIdenticalTo('SELECT bouh FROM `T_MATCH_MAT` m');
+                ->isIdenticalTo("SELECT bouh\n FROM `T_MATCH_MAT` m\n");
 
 
     }

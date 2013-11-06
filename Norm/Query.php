@@ -24,13 +24,9 @@ class Query implements \Iterator, \Countable, \simpleframework\Observer\Subject
         'order'  => array(),
         'group'  => array(),
         'having' => array(),
-        'join' => array(
-            'inner' => array(),
-            'left'  => array(),
-            'right' => array(),
-        ),
-        'value' => array(),
-        'set'   => array()
+        'join'   => array(),
+        'value'  => array(),
+        'set'    => array()
     );
 
     protected $_config       = null;
@@ -343,7 +339,11 @@ class Query implements \Iterator, \Countable, \simpleframework\Observer\Subject
     public function innerJoin($table, $condition)
     {
 
-        $this->_query['join']['inner'][$table] = $condition;
+        $this->_query['join'][] = array(
+            'type' => 'inner',
+            'table' => $table,
+            'condition' => $condition);
+
         return $this;
 
     }
@@ -352,7 +352,11 @@ class Query implements \Iterator, \Countable, \simpleframework\Observer\Subject
     public function leftJoin($table, $condition)
     {
 
-        $this->_query['join']['left'][$table] = $condition;
+        $this->_query['join'][] = array(
+            'type' => 'left',
+            'table' => $table,
+            'condition' => $condition);
+
         return $this;
 
     }
@@ -361,7 +365,11 @@ class Query implements \Iterator, \Countable, \simpleframework\Observer\Subject
     public function rightJoin($table, $condition)
     {
 
-        $this->_query['join']['right'][$table] = $condition;
+        $this->_query['join'][] = array(
+            'type' => 'right',
+            'table' => $table,
+            'condition' => $condition);
+
         return $this;
 
     }
@@ -374,7 +382,7 @@ class Query implements \Iterator, \Countable, \simpleframework\Observer\Subject
 
         switch ($this->_query['type']) {
             case self::TYPE_DELETE:
-                $sql = 'DELETE FROM ' . $this->_escapeField($this->_query['target']);
+                $sql = 'DELETE FROM ' . $this->_escapeField($this->_query['target']) . "\n";
 
                 if (count($this->_query['where']) > 0) {
                     $sql .= ' WHERE (' . implode(') AND (', $this->_query['where']) . ')';
@@ -383,7 +391,7 @@ class Query implements \Iterator, \Countable, \simpleframework\Observer\Subject
             break;
 
             case self::TYPE_INSERT:
-                $sql = 'INSERT INTO ' . $this->_escapeField($this->_query['target']);
+                $sql = 'INSERT INTO ' . $this->_escapeField($this->_query['target']) . "\n";
 
                 if (count($this->_query['set']) === 0) {
                     return null;
@@ -408,7 +416,7 @@ class Query implements \Iterator, \Countable, \simpleframework\Observer\Subject
             break;
 
             case self::TYPE_UPDATE:
-                $sql = 'UPDATE ' . $this->_escapeField($this->_query['target']);
+                $sql = 'UPDATE ' . $this->_escapeField($this->_query['target']) . "\n";
 
                 if (count($this->_query['set']) === 0) {
                     return null;
@@ -425,7 +433,7 @@ class Query implements \Iterator, \Countable, \simpleframework\Observer\Subject
                     $columns[] = $key . ' = ' . $value;
                 }
 
-                $sql .= ' SET ' . implode(', ', $columns);
+                $sql .= ' SET ' . implode(', ', $columns) . "\n";
 
                 if (count($this->_query['where']) > 0) {
                     $sql .= ' WHERE (' . implode(') AND (', $this->_query['where']) . ')';
@@ -437,49 +445,39 @@ class Query implements \Iterator, \Countable, \simpleframework\Observer\Subject
             case self::TYPE_SELECT:
                 $targets = array();
 
-                $sql = ' FROM ' . $this->_escapeField($this->_query['target']);
+                $sql = ' FROM ' . $this->_escapeField($this->_query['target']) . "\n";
 
                 $this->_targets[] = $this->_query['target'];
 
-                foreach ($this->_query['join']['inner'] as $table => $condition) {
-                    $sql .= ' INNER JOIN ' . $this->_escapeField($table) . ' ON (' . $condition . ')';
-                    $this->_targets[] = $table;
-                }
-
-                foreach ($this->_query['join']['left'] as $table => $condition) {
-                    $sql .= ' LEFT JOIN ' . $this->_escapeField($table) . ' ON (' . $condition . ')';
-                    $this->_targets[] = $table;
-                }
-
-                foreach ($this->_query['join']['right'] as $table => $condition) {
-                    $sql .= ' RIGHT JOIN ' . $this->_escapeField($table) . ' ON (' . $condition . ')';
-                    $this->_targets[] = $table;
+                foreach ($this->_query['join'] as $join) {
+                    $sql .= ' ' . strtoupper($join['type']) . ' JOIN ' . $this->_escapeField($join['table']) . ' ON (' . $join['condition'] . ')' . "\n";
+                    $this->_targets[] = $join['table'];
                 }
 
                 if (count($this->_query['where']) > 0) {
-                    $sql .= ' WHERE (' . implode(') AND (', $this->_query['where']) . ')';
+                    $sql .= ' WHERE (' . implode(') AND (', $this->_query['where']) . ')' . "\n";
                 }
 
                 if (count($this->_query['group']) > 0) {
-                    $sql .= ' GROUP BY ' . implode(', ', $this->_query['group']);
+                    $sql .= ' GROUP BY ' . implode(', ', $this->_query['group']) . "\n";
                 }
 
                 if (count($this->_query['having']) > 0) {
-                    $sql .= ' HAVING (' . implode(') AND (', $this->_query['having']) . ')';
+                    $sql .= ' HAVING (' . implode(') AND (', $this->_query['having']) . ')' . "\n";
                 }
 
                 if (count($this->_query['order']) > 0) {
-                    $sql .= ' ORDER BY ' . implode(', ', $this->_query['order']);
+                    $sql .= ' ORDER BY ' . implode(', ', $this->_query['order']) . "\n";
                 }
 
                 if (isset($this->_query['limit']) === true) {
-                    $sql .= ' LIMIT ' . $this->_query['limit'][1] . ' OFFSET ' . $this->_query['limit'][0];
+                    $sql .= ' LIMIT ' . $this->_query['limit'][1] . ' OFFSET ' . $this->_query['limit'][0] . "\n";
                 }
 
                 if (count($this->_query['select']) === 0) {
-                    $sql = ' *' . $sql;
+                    $sql = ' *'  . "\n" . $sql;
                 } else {
-                    $sql = ' ' . implode(', ', $this->_query['select']) . $sql;
+                    $sql = ' ' . implode(', ', $this->_query['select']) . "\n" . $sql;
                 }
 
                 if ($skipFoundRows === false) {

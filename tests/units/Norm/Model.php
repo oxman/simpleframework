@@ -143,7 +143,7 @@ class Model extends atoum\test
             ->and($sql = $queryMock->getSql())
             ->then
                 ->string($sql)
-                ->isIdenticalTo('INSERT INTO `T_TEAM_TEA` (tea_name) VALUES (\'Bouh\')')
+                ->isIdenticalTo("INSERT INTO `T_TEAM_TEA`\n (tea_name) VALUES ('Bouh')")
             ->then
                 ->boolean($result)
                 ->isIdenticalTo(true)
@@ -181,7 +181,7 @@ class Model extends atoum\test
             ->and($sql = $queryMock->getSql())
             ->then
                 ->string($sql)
-                ->isIdenticalTo('UPDATE `T_TEAM_TEA` SET tea_name = \'Bouh\' WHERE (tea_id = :tea_id)')
+                ->isIdenticalTo("UPDATE `T_TEAM_TEA`\n SET tea_name = 'Bouh'\n WHERE (tea_id = :tea_id)")
             ->then
                 ->boolean($result)
                 ->isIdenticalTo(true);
