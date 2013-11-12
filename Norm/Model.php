@@ -131,7 +131,11 @@ class Model
             return $this->{'get' . ucfirst($name)}();
         }
 
-        $name   = lcfirst(substr($name, 3));
+        $name = substr($name, 3);
+
+        if (strtoupper($name) !== $name) {
+            $name = lcfirst($name);
+        }
 
         $name = $this->_findExistingProperty($name);
         $metadata = self::getMetadata();
