@@ -19,6 +19,19 @@ class Watch
         set_error_handler(array($this, 'error'));
         register_shutdown_function(array($this, 'end'));
 
+        $data = array();
+        if (isset($_SERVER['HTTP_HOST']) === true) {
+            $data['hostname'] = $_SERVER['HTTP_HOST'];
+        }
+
+        if (isset($_SERVER['REQUEST_URI']) === true) {
+            $data['url'] = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        }
+
+        if (count($data) > 0) {
+            \Watch\Watch::context(null, $data);
+        }
+
     }
 
 
