@@ -270,8 +270,6 @@ class Metadata implements Adapter\Metadata
         $object = new $class;
 
         foreach($columns as $column) {
-            unset($method);
-
             if ($alias !== $column->table && $column->table != '') {
                 continue;
             }
@@ -290,8 +288,8 @@ class Metadata implements Adapter\Metadata
 
             if (isset($method) === true) {
                 $object->$method($column->value);
+                unset($method);
             }
-
         }
 
         return $object;
