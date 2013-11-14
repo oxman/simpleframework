@@ -660,8 +660,11 @@ class Query implements \Iterator, \Countable, \simpleframework\Observer\Subject
 
         $notifyData = array(
             'duration' => round(microtime(true) - $start, 3),
-            'sql'      => $sql,
-            'params'   => $this->getValues());
+            'sql'      => $sql);
+
+        if (count($this->getValues()) > 0) {
+            $notifyData['params'] = $this->getValues();
+        }
 
         if ($connection->getErrorNo() != 0) {
             $notifyData['error'] = array(
@@ -794,8 +797,11 @@ class Query implements \Iterator, \Countable, \simpleframework\Observer\Subject
 
         $notifyData = array(
             'duration' => round(microtime(true) - $start, 3),
-            'sql'      => $sql,
-            'params'   => $this->getValues());
+            'sql'      => $sql);
+
+        if (count($this->getValues()) > 0) {
+            $notifyData['params'] = $this->getValues();
+        }
 
         if ($connection->getErrorNo() != 0) {
             $notifyData['error'] = array(
