@@ -2,8 +2,8 @@
 
 namespace simpleframework;
 
-require_once ROOT . "/vendor/simpleframework/Observer/Observer.php";
-require_once ROOT . "/vendor/simpleframework/Norm/Query.php";
+require_once ROOT . "/vendor/simpleframework/vendor/Norm/Observer/Observer.php";
+require_once ROOT . "/vendor/simpleframework/vendor/Norm/Query.php";
 require_once ROOT . "/vendor/Watch.php";
 
 class Watch
@@ -15,7 +15,7 @@ class Watch
         \Watch\Watch::setApplicationId($applicationId);
         \Watch\Watch::setApplicationSecret($applicationSecret);
 
-        \simpleframework\Norm\Query::attach(new WatchObserver);
+        \Norm\Query::attach(new WatchObserver);
         set_error_handler(array($this, 'error'));
         register_shutdown_function(array($this, 'end'));
 
@@ -48,6 +48,12 @@ class Watch
 
         \Watch\Watch::error($errfile, array('numero' => $errno, 'message' => $errstr, 'line' => $errline));
 
+        if (SIMPLEFRAMEWORK_ENV !== "prod") {
+            return false;
+        }
+
+        return true;
+
     }
 
 
@@ -70,7 +76,7 @@ class Watch
 }
 
 
-class WatchObserver implements \simpleframework\Observer\Observer
+class WatchObserver implements \Norm\Observer\Observer
 {
 
     public function update($data)

@@ -1,0 +1,3 @@
+[submodule "vendor/Norm"]
+	path = vendor/Norm
+	url = https://github.com/oxman/norm.git

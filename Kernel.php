@@ -26,7 +26,7 @@ class Kernel implements Observer\Subject
     }
 
 
-    public static function attach(\simpleframework\Observer\Observer $observer)
+    public static function attach(Observer\Observer $observer)
     {
 
         self::$_observers[] = $observer;
@@ -34,7 +34,7 @@ class Kernel implements Observer\Subject
     }
 
 
-    public static function detach(\simpleframework\Observer\Observer $observer)
+    public static function detach(Observer\Observer $observer)
     {
 
         $key = array_search($observer, self::$_observers);
@@ -82,11 +82,29 @@ class Kernel implements Observer\Subject
         require_once ROOT . '/vendor/simpleframework/Query.php';
         require_once ROOT . '/vendor/simpleframework/Controller.php';
 
-        require_once ROOT . '/vendor/simpleframework/Norm/Query.php';
-        require_once ROOT . '/vendor/simpleframework/Norm/Model.php';
-        require_once ROOT . '/vendor/simpleframework/Norm/Metadata.php';
+        require_once ROOT . '/vendor/simpleframework/vendor/Norm/Query.php';
+        require_once ROOT . '/vendor/simpleframework/vendor/Norm/Model.php';
+        require_once ROOT . '/vendor/simpleframework/vendor/Norm/Metadata.php';
 
         $this->_loadEnv($env);
+
+        $connections = Kernel::getConfig('db');
+
+        $configuration = \Norm\Configuration::getInstance();
+        $configuration->setModel(ROOT . '/app/model/*.php');
+
+        if ($env === 'prod') {
+            $configuration->setCache(ROOT . '/tmp/cache/norm.txt');
+        }
+
+        foreach($connections as $key => $config) {
+            $configuration->setConnection(
+                $config['hostname'],
+                $config['username'],
+                $config['password'],
+                $config['database'],
+                $key);
+        }
 
         Autoloader::register();
 
