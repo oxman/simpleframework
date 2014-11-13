@@ -70,7 +70,7 @@ class Helper extends \Twig_Extension
     public function checked($var, $value=1)
     {
 
-        if ($var == $value) {
+        if ($var == $value || (is_array($value) && in_array($var, $value) === true)) {
             return ' checked="checked"';
         } else {
             return '';
