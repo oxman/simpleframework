@@ -91,7 +91,7 @@ class Kernel implements Observer\Subject
         $connections = Kernel::getConfig('db');
 
         $configuration = \Norm\Configuration::getInstance();
-        $configuration->setModel(ROOT . '/app/model/*.php');
+        $configuration->setModel(ROOT . '/app/model');
 
         if ($env === 'prod') {
             $configuration->setCache(ROOT . '/tmp/cache/norm.txt');
